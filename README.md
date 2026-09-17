@@ -6,9 +6,8 @@ It was built for readers who want to organize their shelves, wishlists, and curr
 
 ## Live Site
 
-Add your GitHub Pages URL here after deployment:
 
-[Visit PanelShelf]((https://leslydtech.github.io/PanelShelf/))
+[Visit PanelShelf](https://leslydtech.github.io/PanelShelf/)
 
 ## Features
 
