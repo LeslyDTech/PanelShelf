@@ -20,20 +20,7 @@ body {
   color: var(--ink);
   font-family: "Pixelify Sans", monospace;
   background:
-    radial-gradient(circle at 50% 48%, #ffe96a 0 12%, transparent 12.5%),
-    repeating-conic-gradient(
-      from -12deg at 50% 48%,
-      #e63b43 0 3deg,
-      #15132b 3deg 4deg,
-      #ffd447 4deg 8deg,
-      #15132b 8deg 9deg,
-      #3dbee2 9deg 12deg,
-      #15132b 12deg 13deg,
-      #ff7861 13deg 17deg,
-      #15132b 17deg 18deg,
-      #ffd447 18deg 23deg,
-      #15132b 23deg 24deg
-    );
+    linear-gradient(to bottom right, black, red);
   background-attachment: fixed;
 }
 
@@ -557,14 +544,515 @@ dialog::backdrop {
   .password-field {
     grid-template-columns: 1fr;
   }
+}
 
-  .card-grid,
-  #cover-suggestions,
-  #edit-cover-suggestions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+.card-grid,
+#cover-suggestions,
+#edit-cover-suggestions {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.account-controls {
+  align-items: flex-start;
+}
+
+.site-footer {
+  width: min(960px, calc(100% - 32px));
+  margin: 0 auto 34px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 16px;
+  font-weight: 700;
+}
+
+.site-footer a {
+  color: var(--ink);
+  text-underline-offset: 4px;
+}
+
+.site-footer a:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 4px;
+}
+
+.delete-account-button {
+  border: 3px solid var(--line);
+  border-radius: 0;
+  background: var(--red);
+  color: white;
+  cursor: pointer;
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  line-height: 1.5;
+  padding: 10px 12px;
+  text-transform: uppercase;
+  box-shadow: 4px 4px 0 var(--line);
+}
+
+.delete-account-button:hover {
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.delete-account-button:focus-visible {
+  outline: 3px solid var(--yellow);
+  outline-offset: 4px;
+}
+
+.delete-account-dialog {
+  width: min(520px, calc(100% - 32px));
+  border: 4px solid var(--line);
+  border-radius: 0;
+  background: var(--panel);
+  color: var(--ink);
+  box-shadow: 8px 8px 0 var(--line);
+  padding: 28px;
+}
+
+.delete-account-dialog::backdrop {
+  background: rgba(21, 19, 43, 0.72);
+}
+
+.delete-account-dialog h2 {
+  margin: 0 0 18px;
+}
+
+.delete-account-dialog p {
+  font-weight: 700;
+  line-height: 1.6;
+}
+
+.delete-account-dialog label {
+  display: grid;
+  gap: 8px;
+  margin-top: 18px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.delete-account-dialog input {
+  border: 3px solid var(--line);
+  border-radius: 0;
+  padding: 10px;
+  background: #fffdf4;
+  color: var(--ink);
+  font: inherit;
+}
+
+.delete-account-dialog input:focus {
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+.delete-account-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.delete-account-actions button {
+  flex: 1 1 180px;
+}
+
+#delete-account-message {
+  min-height: 1.6em;
+  color: var(--red);
+}
+
+@media (max-width: 500px) {
+  .delete-account-dialog {
+    padding: 22px;
   }
 
-  .account-controls {
-    align-items: flex-start;
+  .delete-account-actions {
+    display: grid;
   }
+}
+
+#current-user {
+  max-width: min(100%, 260px);
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.status-badge {
+  display: inline-flex;
+  width: fit-content;
+  margin: 0;
+  padding: 5px 7px;
+  border: 2px solid var(--line);
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.status-owned {
+  background: var(--green);
+  color: #ffffff;
+}
+
+.status-reading {
+  background: var(--blue);
+  color: #ffffff;
+}
+
+.status-wishlist {
+  background: var(--yellow);
+  color: var(--ink);
+}
+
+.status-read {
+  background: var(--red);
+  color: #ffffff;
+}
+
+@media (max-width: 800px) {
+  body {
+    background-attachment: scroll;
+  }
+
+  #current-user {
+    max-width: min(100%, 280px);
+  }
+}
+
+/* ---------- Comic nav toggle (Home / Add item / Collection) ---------- */
+
+.comic-radio-group {
+  --bg: var(--yellow);
+  --text-light: #ffffff;
+  --text-dark: var(--line);
+
+  display: flex;
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  overflow: hidden;
+  background: var(--bg);
+  border: 4px solid var(--text-dark);
+  border-radius: 12px;
+  box-shadow: 8px 8px 0 var(--text-dark);
+  font-family: Impact, Haettenschweiler, "Arial Narrow Bold", sans-serif;
+  font-style: italic;
+  font-weight: 500;
+}
+
+/* Radios are visually hidden but still keyboard-focusable */
+.comic-radio-group input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.comic-radio-group label {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  padding: 0.8rem 0.4rem;
+  color: var(--text-dark);
+  font-size: clamp(14px, 4vw, 22px);
+  letter-spacing: 1px;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+  text-shadow:
+    -1px -1px 0 var(--text-light),
+    1px -1px 0 var(--text-light),
+    -1px 1px 0 var(--text-light),
+    1px 1px 0 var(--text-light);
+}
+
+.comic-radio-group input:checked + label {
+  color: var(--text-light);
+  text-shadow:
+    -2px -2px 0 var(--text-dark),
+    2px -2px 0 var(--text-dark),
+    -2px 2px 0 var(--text-dark),
+    2px 2px 0 var(--text-dark);
+}
+
+.comic-radio-group input:focus-visible + label {
+  outline: 4px solid var(--text-dark);
+  outline-offset: -8px;
+}
+
+.comic-glider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+  width: calc(100% / 3);
+  border-right: 4px solid var(--text-dark);
+  border-left: 4px solid var(--text-dark);
+  border-radius: 8px;
+  background-size: 8px 8px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+  transition:
+    transform 0.5s cubic-bezier(0.37, 1.95, 0.66, 0.56),
+    background 0.4s ease-in-out;
+}
+
+#nav-home:checked ~ .comic-glider {
+  transform: translateX(0%);
+  background-color: var(--red);
+  background-image: radial-gradient(circle at 4px 4px, #b82c33 2px, transparent 0);
+}
+
+#nav-add:checked ~ .comic-glider {
+  transform: translateX(100%);
+  background-color: var(--blue);
+  background-image: radial-gradient(circle at 4px 4px, #2b5aa8 2px, transparent 0);
+}
+
+#nav-collection:checked ~ .comic-glider {
+  transform: translateX(200%);
+  background-color: var(--green);
+  background-image: radial-gradient(circle at 4px 4px, #438f42 2px, transparent 0);
+}
+
+/* Placement inside the header */
+header .comic-radio-group {
+  width: min(100%, 520px);
+  margin: 20px 8px 8px 0;
+}
+
+/* ---------- Static dot background ---------- */
+
+:root {
+  --bg-dot: rgba(255, 212, 71, 0.35);
+}
+
+body::before {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  content: "";
+  background:
+    radial-gradient(circle, var(--bg-dot) 3px, transparent 3.5px) 0 0 / 30px 30px,
+    radial-gradient(circle, var(--bg-dot) 3px, transparent 3.5px) 15px 15px / 30px 30px;
+}
+
+/* ---------- Sign in loading screen (adapted from Uiverse.io by anand_4957) ---------- */
+
+.loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  overflow: hidden;
+  background: var(--yellow);
+  opacity: 0;
+  transition: opacity 0.25s ease-in-out;
+}
+
+.loading-screen.is-active {
+  opacity: 1;
+}
+
+.loading-label {
+  position: absolute;
+  top: calc(50% + 60px);
+  right: 0;
+  left: 0;
+  margin: 0;
+  color: var(--line);
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+  text-align: center;
+}
+
+.loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  margin-left: -50px;
+  animation: speeder 0.4s linear infinite;
+}
+
+.loader > span {
+  position: absolute;
+  top: -19px;
+  left: 60px;
+  width: 35px;
+  height: 5px;
+  background: var(--line);
+  border-radius: 2px 10px 1px 0;
+}
+
+.base span {
+  position: absolute;
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-right: 100px solid var(--line);
+  border-bottom: 6px solid transparent;
+}
+
+.base span::before {
+  position: absolute;
+  top: -16px;
+  right: -110px;
+  width: 22px;
+  height: 22px;
+  content: "";
+  background: var(--line);
+  border-radius: 50%;
+}
+
+.base span::after {
+  position: absolute;
+  top: -16px;
+  right: -98px;
+  width: 0;
+  height: 0;
+  content: "";
+  border-top: 0 solid transparent;
+  border-right: 55px solid var(--line);
+  border-bottom: 16px solid transparent;
+}
+
+.face {
+  position: absolute;
+  top: -15px;
+  right: -125px;
+  width: 20px;
+  height: 12px;
+  background: var(--line);
+  border-radius: 20px 20px 0 0;
+  transform: rotate(-40deg);
+}
+
+.face::after {
+  position: absolute;
+  top: 7px;
+  right: 4px;
+  width: 12px;
+  height: 12px;
+  content: "";
+  background: var(--line);
+  border-radius: 0 0 0 2px;
+  transform: rotate(40deg);
+  transform-origin: 50% 50%;
+}
+
+.loader > span > span:nth-child(1),
+.loader > span > span:nth-child(2),
+.loader > span > span:nth-child(3),
+.loader > span > span:nth-child(4) {
+  position: absolute;
+  width: 30px;
+  height: 1px;
+  background: var(--line);
+  animation: fazer1 0.2s linear infinite;
+}
+
+.loader > span > span:nth-child(2) {
+  top: 3px;
+  animation: fazer2 0.4s linear infinite;
+}
+
+.loader > span > span:nth-child(3) {
+  top: 1px;
+  animation: fazer3 0.4s linear infinite;
+  animation-delay: -1s;
+}
+
+.loader > span > span:nth-child(4) {
+  top: 4px;
+  animation: fazer4 1s linear infinite;
+  animation-delay: -1s;
+}
+
+@keyframes fazer1 {
+  0% { left: 0; }
+  100% { left: -80px; opacity: 0; }
+}
+
+@keyframes fazer2 {
+  0% { left: 0; }
+  100% { left: -100px; opacity: 0; }
+}
+
+@keyframes fazer3 {
+  0% { left: 0; }
+  100% { left: -50px; opacity: 0; }
+}
+
+@keyframes fazer4 {
+  0% { left: 0; }
+  100% { left: -150px; opacity: 0; }
+}
+
+@keyframes speeder {
+  0% { transform: translate(2px, 1px) rotate(0deg); }
+  10% { transform: translate(-1px, -3px) rotate(-1deg); }
+  20% { transform: translate(-2px, 0) rotate(1deg); }
+  30% { transform: translate(1px, 2px) rotate(0deg); }
+  40% { transform: translate(1px, -1px) rotate(1deg); }
+  50% { transform: translate(-1px, 3px) rotate(-1deg); }
+  60% { transform: translate(-1px, 1px) rotate(0deg); }
+  70% { transform: translate(3px, 1px) rotate(-1deg); }
+  80% { transform: translate(-2px, -1px) rotate(1deg); }
+  90% { transform: translate(2px, 1px) rotate(0deg); }
+  100% { transform: translate(1px, -2px) rotate(-1deg); }
+}
+
+.longfazers {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.longfazers span {
+  position: absolute;
+  width: 20%;
+  height: 2px;
+  background: var(--line);
+}
+
+.longfazers span:nth-child(1) {
+  top: 20%;
+  animation: lf 0.6s linear infinite;
+  animation-delay: -5s;
+}
+
+.longfazers span:nth-child(2) {
+  top: 40%;
+  animation: lf 0.8s linear infinite;
+  animation-delay: -1s;
+}
+
+.longfazers span:nth-child(3) {
+  top: 60%;
+  animation: lf3 0.6s linear infinite;
+}
+
+.longfazers span:nth-child(4) {
+  top: 80%;
+  animation: lf3 0.5s linear infinite;
+  animation-delay: -3s;
+}
+
+@keyframes lf {
+  0% { left: 200%; }
+  100% { left: -200%; opacity: 0; }
+}
+
+@keyframes lf3 {
+  0% { left: 200%; }
+  100% { left: -100%; opacity: 0; }
 }
