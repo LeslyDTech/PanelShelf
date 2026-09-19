@@ -1056,3 +1056,930 @@ body::before {
   0% { left: 200%; }
   100% { left: -100%; opacity: 0; }
 }
+
+/* =========================================
+   PanelShelf Sign In Page
+   ========================================= */
+
+
+/* =========================================
+   PanelShelf Sign In Page
+   ========================================= */
+
+.signin-page {
+  min-height: 100vh;
+  margin: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--ink);
+
+  background:
+    radial-gradient(circle, var(--bg-dot) 3px, transparent 3.5px) 0 0 / 30px 30px,
+    radial-gradient(circle, var(--bg-dot) 3px, transparent 3.5px) 15px 15px / 30px 30px,
+    var(--paper);
+
+  background-attachment: fixed;
+}
+
+
+/* =========================================
+   Sign-In Container
+   ========================================= */
+
+.signin-container {
+  width: 100%;
+  max-width: 460px;
+  padding: 24px;
+}
+
+
+/* =========================================
+   Comic Panel
+   ========================================= */
+
+.signin-card {
+  position: relative;
+
+  width: 100%;
+  padding: 30px;
+
+  background: var(--panel);
+
+  border: 4px solid var(--line);
+  box-shadow: 8px 8px 0 var(--line);
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+
+/* Comic tape/detail at top of panel */
+
+.signin-card::before {
+  position: absolute;
+  top: -12px;
+  left: 22px;
+
+  width: 90px;
+  height: 12px;
+
+  content: "";
+
+  background: var(--yellow);
+  border: 3px solid var(--line);
+}
+
+
+/* =========================================
+   PanelShelf Brand
+   ========================================= */
+
+.signin-brand {
+  display: inline-block;
+
+  width: fit-content;
+
+  color: #ffffff;
+  background: var(--blue);
+
+  border: 3px solid var(--line);
+  box-shadow: 4px 4px 0 var(--line);
+
+  padding: 8px 12px;
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+  line-height: 1.5;
+
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.signin-brand:hover {
+  color: var(--ink);
+  background: var(--yellow);
+}
+
+
+/* =========================================
+   Header
+   ========================================= */
+
+.signin-header {
+  padding-bottom: 6px;
+}
+
+
+/* Comic-style title */
+
+.signin-header h1 {
+  display: inline-block;
+
+  margin: 0 0 14px;
+  padding: 8px 10px;
+
+  color: #ffffff;
+  background: var(--red);
+
+  border: 3px solid var(--line);
+  box-shadow: 5px 5px 0 var(--line);
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 15px;
+  line-height: 1.6;
+
+  text-transform: uppercase;
+
+  text-shadow: 3px 3px 0 var(--ink);
+}
+
+
+/* Subtitle */
+
+.signin-header p {
+  margin: 0;
+
+  color: var(--ink);
+
+  font-family: "Pixelify Sans", monospace;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+
+/* =========================================
+   Form
+   ========================================= */
+
+#signin-form {
+  display: grid;
+  gap: 18px;
+}
+
+
+/* =========================================
+   Form Groups
+   ========================================= */
+
+.form-group {
+  width: 100%;
+}
+
+
+/* Labels */
+
+.form-group label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: var(--ink);
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  font-weight: normal;
+  line-height: 1.6;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================
+   Inputs
+   ========================================= */
+
+.form-group input {
+  width: 100%;
+  height: 48px;
+
+  box-sizing: border-box;
+
+  padding: 10px;
+
+  color: var(--ink);
+  background: var(--soft-paper);
+
+  border: 3px solid var(--line);
+  border-radius: 0;
+
+  box-shadow: 4px 4px 0 var(--line);
+
+  font-family: "Pixelify Sans", monospace;
+  font-size: 15px;
+  font-weight: 600;
+
+  outline: none;
+}
+
+.form-group input::placeholder {
+  color: var(--ink);
+  opacity: 0.5;
+}
+
+.form-group input:focus {
+  border-color: var(--blue);
+
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+
+/* =========================================
+   Password
+   ========================================= */
+
+.password-input {
+  position: relative;
+}
+
+.password-input input {
+  padding-right: 78px;
+}
+
+
+/* Show / Hide button */
+
+.password-toggle {
+  position: absolute;
+
+  top: 50%;
+  right: 8px;
+
+  min-height: 32px;
+  width: auto;
+
+  padding: 5px 8px;
+
+  color: #ffffff;
+  background: var(--blue);
+
+  border: 2px solid var(--line);
+  box-shadow: 2px 2px 0 var(--line);
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  line-height: 1.4;
+
+  transform: translateY(-50%);
+}
+
+.password-toggle:hover {
+  color: var(--ink);
+  background: var(--yellow);
+}
+
+.password-toggle:active {
+  box-shadow: none;
+  transform: translate(2px, calc(-50% + 2px));
+}
+
+
+/* =========================================
+   Forgot Password
+   ========================================= */
+
+.signin-options {
+  display: flex;
+  justify-content: flex-end;
+
+  margin-top: -4px;
+}
+
+.signin-options a {
+  color: var(--blue);
+
+  font-family: "Pixelify Sans", monospace;
+  font-size: 14px;
+  font-weight: 700;
+
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.signin-options a:hover {
+  color: var(--red);
+}
+
+
+/* =========================================
+   Sign-In Button
+   ========================================= */
+
+.signin-submit {
+  width: 100%;
+  min-height: 52px;
+
+  margin: 4px 0 0;
+
+  color: #ffffff;
+  background: var(--green);
+
+  border: 3px solid var(--line);
+  border-radius: 0;
+
+  box-shadow: 5px 5px 0 var(--line);
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  line-height: 1.5;
+
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+}
+
+.signin-submit:hover {
+  color: var(--ink);
+  background: var(--yellow);
+}
+
+.signin-submit:active {
+  box-shadow: none;
+  transform: translate(5px, 5px);
+}
+
+.signin-submit:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+
+/* =========================================
+   Authentication Message
+   ========================================= */
+
+.signin-message {
+  min-height: 24px;
+
+  margin: 0;
+
+  color: var(--red);
+
+  font-family: "Pixelify Sans", monospace;
+  font-size: 13px;
+  font-weight: 700;
+
+  text-align: center;
+}
+
+
+/* =========================================
+   Account Section
+   ========================================= */
+
+.signin-divider {
+  position: relative;
+
+  margin-top: 4px;
+
+  text-align: center;
+}
+
+.signin-divider::before {
+  position: absolute;
+
+  top: 50%;
+  right: 0;
+  left: 0;
+
+  height: 3px;
+
+  content: "";
+
+  background: var(--line);
+}
+
+.signin-divider span {
+  position: relative;
+  z-index: 1;
+
+  padding: 0 10px;
+
+  color: var(--ink);
+  background: var(--panel);
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  line-height: 1.5;
+  text-transform: uppercase;
+}
+
+
+/* Create account */
+
+.create-account {
+  display: block;
+
+  width: 100%;
+
+  padding: 12px;
+
+  color: #ffffff;
+  background: var(--blue);
+
+  border: 3px solid var(--line);
+  box-shadow: 4px 4px 0 var(--line);
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  line-height: 1.5;
+
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.create-account:hover {
+  color: var(--ink);
+  background: var(--yellow);
+}
+
+
+/* =========================================
+   Back to PanelShelf
+   ========================================= */
+
+.back-to-home {
+  color: var(--ink);
+
+  font-family: "Pixelify Sans", monospace;
+  font-size: 14px;
+  font-weight: 700;
+
+  text-align: center;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.back-to-home:hover {
+  color: var(--red);
+}
+
+
+/* =========================================
+   Mobile
+   ========================================= */
+
+@media (max-width: 480px) {
+
+  .signin-container {
+    padding: 16px;
+  }
+
+  .signin-card {
+    padding: 22px;
+    box-shadow: 6px 6px 0 var(--line);
+  }
+
+  .signin-header h1 {
+    font-size: 12px;
+  }
+
+  .signin-header p {
+    font-size: 14px;
+  }
+
+  .signin-brand {
+    font-size: 10px;
+  }
+}
+
+
+/* =========================================
+   PanelShelf Create Account Page
+   ========================================= */
+
+.signup-page {
+  min-height: 100vh;
+  margin: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--ink);
+
+  background:
+    radial-gradient(circle, var(--bg-dot) 3px, transparent 3.5px) 0 0 / 30px 30px,
+    radial-gradient(circle, var(--bg-dot) 3px, transparent 3.5px) 15px 15px / 30px 30px,
+    var(--paper);
+
+  background-attachment: fixed;
+}
+
+
+/* =========================================
+   Container
+   ========================================= */
+
+.signup-container {
+  width: 100%;
+  max-width: 460px;
+  padding: 24px;
+}
+
+
+/* =========================================
+   Comic Panel
+   ========================================= */
+
+.signup-card {
+  position: relative;
+
+  width: 100%;
+  padding: 30px;
+
+  background: var(--panel);
+
+  border: 4px solid var(--line);
+  box-shadow: 8px 8px 0 var(--line);
+
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+
+/* Comic tape */
+
+.signup-card::before {
+  position: absolute;
+  top: -12px;
+  left: 22px;
+
+  width: 90px;
+  height: 12px;
+
+  content: "";
+
+  background: var(--yellow);
+  border: 3px solid var(--line);
+}
+
+
+/* =========================================
+   PanelShelf Brand
+   ========================================= */
+
+.signup-brand {
+  display: inline-block;
+
+  width: fit-content;
+
+  padding: 8px 12px;
+
+  color: #ffffff;
+  background: var(--blue);
+
+  border: 3px solid var(--line);
+  box-shadow: 4px 4px 0 var(--line);
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 12px;
+  line-height: 1.5;
+
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.signup-brand:hover {
+  color: var(--ink);
+  background: var(--yellow);
+}
+
+
+/* =========================================
+   Header
+   ========================================= */
+
+.signup-header {
+  padding-bottom: 6px;
+}
+
+.signup-header h1 {
+  display: inline-block;
+
+  margin: 0 0 14px;
+  padding: 8px 10px;
+
+  color: #ffffff;
+  background: var(--blue);
+
+  border: 3px solid var(--line);
+  box-shadow: 5px 5px 0 var(--line);
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 15px;
+  line-height: 1.6;
+
+  text-transform: uppercase;
+
+  text-shadow: 3px 3px 0 var(--ink);
+}
+
+.signup-header p {
+  margin: 0;
+
+  color: var(--ink);
+
+  font-family: "Pixelify Sans", monospace;
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+
+/* =========================================
+   Form
+   ========================================= */
+
+#signup-form {
+  display: grid;
+  gap: 18px;
+}
+
+
+/* =========================================
+   Labels
+   ========================================= */
+
+.signup-card .form-group label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  color: var(--ink);
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  font-weight: normal;
+  line-height: 1.6;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================
+   Inputs
+   ========================================= */
+
+.signup-card .form-group input {
+  width: 100%;
+  height: 48px;
+
+  box-sizing: border-box;
+
+  padding: 10px;
+
+  color: var(--ink);
+  background: var(--soft-paper);
+
+  border: 3px solid var(--line);
+  border-radius: 0;
+
+  box-shadow: 4px 4px 0 var(--line);
+
+  font-family: "Pixelify Sans", monospace;
+  font-size: 15px;
+  font-weight: 600;
+
+  outline: none;
+}
+
+.signup-card .form-group input::placeholder {
+  color: var(--ink);
+  opacity: 0.5;
+}
+
+.signup-card .form-group input:focus {
+  border-color: var(--blue);
+
+  outline: 3px solid var(--yellow);
+  outline-offset: 2px;
+}
+
+
+/* =========================================
+   Password
+   ========================================= */
+
+.signup-card .password-input {
+  position: relative;
+}
+
+.signup-card .password-input input {
+  padding-right: 78px;
+}
+
+
+/* Show / Hide */
+
+.signup-card .password-toggle {
+  position: absolute;
+
+  top: 50%;
+  right: 8px;
+
+  min-height: 32px;
+  width: auto;
+
+  padding: 5px 8px;
+
+  color: #ffffff;
+  background: var(--blue);
+
+  border: 2px solid var(--line);
+  box-shadow: 2px 2px 0 var(--line);
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 7px;
+  line-height: 1.4;
+
+  transform: translateY(-50%);
+}
+
+.signup-card .password-toggle:hover {
+  color: var(--ink);
+  background: var(--yellow);
+}
+
+
+/* =========================================
+   Create Account Button
+   ========================================= */
+
+.signup-submit {
+  width: 100%;
+  min-height: 52px;
+
+  margin: 4px 0 0;
+
+  color: #ffffff;
+  background: var(--green);
+
+  border: 3px solid var(--line);
+  border-radius: 0;
+
+  box-shadow: 5px 5px 0 var(--line);
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 10px;
+  line-height: 1.5;
+
+  text-transform: uppercase;
+
+  cursor: pointer;
+
+  transition:
+    transform 0.1s ease,
+    box-shadow 0.1s ease;
+}
+
+.signup-submit:hover {
+  color: var(--ink);
+  background: var(--yellow);
+}
+
+.signup-submit:active {
+  box-shadow: none;
+  transform: translate(5px, 5px);
+}
+
+.signup-submit:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+
+/* =========================================
+   Message
+   ========================================= */
+
+.signup-message {
+  min-height: 24px;
+
+  margin: 0;
+
+  color: var(--red);
+
+  font-family: "Pixelify Sans", monospace;
+  font-size: 13px;
+  font-weight: 700;
+
+  text-align: center;
+}
+
+
+/* =========================================
+   Sign In Divider
+   ========================================= */
+
+.signup-divider {
+  position: relative;
+
+  margin-top: 4px;
+
+  text-align: center;
+}
+
+.signup-divider::before {
+  position: absolute;
+
+  top: 50%;
+  right: 0;
+  left: 0;
+
+  height: 3px;
+
+  content: "";
+
+  background: var(--line);
+}
+
+.signup-divider span {
+  position: relative;
+  z-index: 1;
+
+  padding: 0 10px;
+
+  color: var(--ink);
+  background: var(--panel);
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 8px;
+  line-height: 1.5;
+
+  text-transform: uppercase;
+}
+
+
+/* =========================================
+   Sign In Link
+   ========================================= */
+
+.signup-signin {
+  display: block;
+
+  width: 100%;
+
+  padding: 12px;
+
+  color: #ffffff;
+  background: var(--red);
+
+  border: 3px solid var(--line);
+  box-shadow: 4px 4px 0 var(--line);
+
+  font-family: "Press Start 2P", monospace;
+  font-size: 9px;
+  line-height: 1.5;
+
+  text-align: center;
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.signup-signin:hover {
+  color: var(--ink);
+  background: var(--yellow);
+}
+
+
+/* =========================================
+   Mobile
+   ========================================= */
+
+@media (max-width: 480px) {
+
+  .signup-container {
+    padding: 16px;
+  }
+
+  .signup-card {
+    padding: 22px;
+    box-shadow: 6px 6px 0 var(--line);
+  }
+
+  .signup-header h1 {
+    font-size: 12px;
+  }
+
+  .signup-header p {
+    font-size: 14px;
+  }
+
+  .signup-brand {
+    font-size: 10px;
+  }
+}
+
+

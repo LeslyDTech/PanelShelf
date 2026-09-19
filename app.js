@@ -735,26 +735,18 @@ async function hideLoaderSequence() {
 }
 
 async function openAuthWithLoader() {
-  const dialog = $("#auth-dialog");
   const screen = $("#loading-screen");
 
-  if (!dialog || !screen) {
-    console.error("PanelShelf: Auth dialog or loading screen is missing.");
+  if (!screen) {
+    console.error("PanelShelf: #loading-screen was not found.");
     return;
   }
 
-  if (dialog.open) {
-    return;
-  }
-
-  // Show the racing/loading transition first
+  // Play the racing transition first
   await runLoaderSequence();
 
-  // Open the authentication dialog AFTER the transition
-  dialog.showModal();
-
-  // Fade the loading screen away
-  await hideLoaderSequence();
+  // Redirect only after the transition has finished
+  window.location.href = "signin.html";
 }
 
 $("#open-auth-button").addEventListener(

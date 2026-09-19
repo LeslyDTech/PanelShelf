@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Create Account | PanelShelf</title>
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body class="signup-page">
+
+  <main class="signup-container">
+
+    <section class="signup-card" aria-labelledby="signup-title">
+
+      <a href="index.html" class="signup-brand">
+        PanelShelf
+      </a>
+
+      <div class="signup-header">
+        <h1 id="signup-title">Create Account</h1>
+        <p>Join PanelShelf and start building your collection.</p>
+      </div>
+
+      <form id="signup-form">
+
+        <div class="form-group">
+          <label for="signup-name">Display Name</label>
+
+          <input
+            type="text"
+            id="signup-name"
+            name="name"
+            autocomplete="name"
+            placeholder="Your name"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="signup-email">Email</label>
+
+          <input
+            type="email"
+            id="signup-email"
+            name="email"
+            autocomplete="email"
+            placeholder="you@example.com"
+            required
+          >
+        </div>
+
+        <div class="form-group">
+          <label for="signup-password">Password</label>
+
+          <div class="password-input">
+            <input
+              type="password"
+              id="signup-password"
+              name="password"
+              autocomplete="new-password"
+              placeholder="Create a password"
+              required
+            >
+
+            <button
+              type="button"
+              id="toggle-signup-password"
+              class="password-toggle"
+              aria-label="Show password"
+            >
+              Show
+            </button>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="signup-confirm-password">Confirm Password</label>
+
+          <input
+            type="password"
+            id="signup-confirm-password"
+            name="confirm-password"
+            autocomplete="new-password"
+            placeholder="Confirm your password"
+            required
+          >
+        </div>
+
+        <button
+          type="submit"
+          id="signup-submit"
+          class="signup-submit"
+        >
+          Create Account
+        </button>
+
+        <p
+          id="signup-message"
+          class="signup-message"
+          role="status"
+        ></p>
+
+      </form>
+
+      <div class="signup-divider">
+        <span>Already have an account?</span>
+      </div>
+
+      <a href="signin.html" class="signup-signin">
+        Sign In
+      </a>
+
+      <a href="index.html" class="back-to-home">
+        ← Back to PanelShelf
+      </a>
+
+    </section>
+
+  </main>
+
+  <script src="signup.js"></script>
+
+</body>
+</html>
+
