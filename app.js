@@ -21,6 +21,15 @@ function typeName(type) {
   }[type] || "Comic issue";
 }
 
+function statusLabel(status) {
+  return {
+    owned: "Owned",
+    wishlist: "Wishlist",
+    reading: "Reading",
+    read: "Read",
+  }[status] || "Owned";
+}
+
 function itemName(comic) {
   if (!comic.issue) {
     return comic.series;
@@ -32,6 +41,10 @@ function itemName(comic) {
 }
 
 function redirectUrl() {
+  if (window.Capacitor?.isNativePlatform?.()) {
+    return "panelshelf://auth/callback";
+  }
+
   return new URL("index.html", window.location.href).toString();
 }
 
@@ -82,7 +95,8 @@ function createComicCard(comic) {
   publisher.textContent = comic.publisher || "Publisher unknown";
 
   const status = document.createElement("p");
-  status.textContent = `Status: ${comic.status}`;
+  status.className = `status-badge status-${comic.status}`;
+  status.textContent = statusLabel(comic.status);
 
   card.append(type, title, publisher, status);
 
@@ -439,11 +453,17 @@ $("#find-cover-button").addEventListener("click", async () => {
       return;
     }
 
-    displayCoverSuggestions($("#cover-suggestions"), covers, title, (coverUrl) => {
-      $("#selected-cover-url").value = coverUrl;
-      $("#selected-cover-path").value = "";
-      message.textContent = "Cover selected. Add it to your shelf when ready.";
-    });
+    displayCoverSuggestions(
+      $("#cover-suggestions"),
+      covers,
+      title,
+      (coverUrl) => {
+        $("#selected-cover-url").value = coverUrl;
+        $("#selected-cover-path").value = "";
+        message.textContent =
+          "Cover selected. Add it to your shelf when ready.";
+      }
+    );
 
     message.textContent = "Choose one of the suggested covers.";
   } catch (error) {
@@ -535,12 +555,20 @@ $("#edit-cover-upload").addEventListener("change", async () => {
   }
 
   try {
-    $("#edit-cover-message").textContent = "Uploading replacement cover...";
+    $("#edit-cover-message").textContent =
+      "Uploading replacement cover...";
+
     const cover = await uploadCover(file);
 
     $("#edit-cover-url").value = cover.url;
     $("#edit-cover-path").value = cover.path;
-    setCoverPreview($("#edit-cover-preview"), cover.url, $("#edit-series").value);
+
+    setCoverPreview(
+      $("#edit-cover-preview"),
+      cover.url,
+      $("#edit-series").value
+    );
+
     $("#edit-cover-message").textContent = "Replacement cover ready.";
   } catch (error) {
     $("#edit-cover-message").textContent = error.message;
@@ -551,13 +579,18 @@ $("#edit-form").addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const id = $("#edit-id").value;
-  const oldComic = comics.find((comic) => String(comic.id) === String(id));
+  const oldComic = comics.find(
+    (comic) => String(comic.id) === String(id)
+  );
+
   const newCoverPath = $("#edit-cover-path").value || null;
 
   const updates = {
     item_type: $("#edit-item-type").value,
     series: $("#edit-series").value.trim(),
-    issue: $("#edit-issue").value ? Number($("#edit-issue").value) : null,
+    issue: $("#edit-issue").value
+      ? Number($("#edit-issue").value)
+      : null,
     publisher: $("#edit-publisher").value.trim() || null,
     notes: $("#edit-notes").value.trim() || null,
     status: $("#edit-status").value,
@@ -599,33 +632,44 @@ function exportCsv() {
 
   const csv = rows
     .map((row) =>
-      row.map((value) => `"${String(value).replaceAll('"', '""')}"`).join(",")
+      row
+        .map((value) => `"${String(value).replaceAll('"', '""')}"`)
+        .join(",")
     )
     .join("\n");
 
   const link = document.createElement("a");
+
   link.href = URL.createObjectURL(
     new Blob([csv], { type: "text/csv;charset=utf-8" })
   );
+
   link.download = "panelshelf-collection.csv";
   link.click();
 
   URL.revokeObjectURL(link.href);
 }
 
-$$("[data-view]").forEach((button) => {
-  button.addEventListener("click", () => {
-    $$(".view").forEach((view) => {
-      view.hidden = view.id !== button.dataset.view;
-    });
-
-    $$(".nav-button").forEach((navButton) => {
-      navButton.classList.toggle(
-        "active",
-        navButton.dataset.view === button.dataset.view
-      );
-    });
+function showView(viewId) {
+  $$(".view").forEach((view) => {
+    view.hidden = view.id !== viewId;
   });
+
+  const radio = document.querySelector(
+    `.comic-radio-group input[value="${viewId}"]`
+  );
+
+  if (radio) {
+    radio.checked = true;
+  }
+}
+
+$$("[data-view]").forEach((button) => {
+  button.addEventListener("click", () => showView(button.dataset.view));
+});
+
+$$('.comic-radio-group input[name="main-nav"]').forEach((radio) => {
+  radio.addEventListener("change", () => showView(radio.value));
 });
 
 [
@@ -644,9 +688,79 @@ $("#close-edit-button").addEventListener("click", () => {
   $("#edit-dialog").close();
 });
 
-$("#open-auth-button").addEventListener("click", () => {
-  $("#auth-dialog").showModal();
-});
+// Helper function to force an asynchronous pause so the CSS engine handles transitions correctly
+function delay(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function runLoaderSequence() {
+  const screen = $("#loading-screen");
+
+  if (!screen) {
+    console.error("PanelShelf: #loading-screen was not found.");
+    return false;
+  }
+
+  // Make sure the loader starts from a clean state
+  screen.hidden = false;
+  screen.classList.remove("is-active");
+
+  // Force the browser to render the initial state
+  void screen.offsetWidth;
+
+  // Activate the transition/animation
+  screen.classList.add("is-active");
+
+  // Keep it visible long enough for the animation to play
+  await delay(1400);
+
+  return true;
+}
+
+async function hideLoaderSequence() {
+  const screen = $("#loading-screen");
+
+  if (!screen) {
+    return;
+  }
+
+  // Start the fade-out
+  screen.classList.remove("is-active");
+
+  // Give the CSS transition time to finish
+  await delay(250);
+
+  // Completely remove it from the page flow
+  screen.hidden = true;
+}
+
+async function openAuthWithLoader() {
+  const dialog = $("#auth-dialog");
+  const screen = $("#loading-screen");
+
+  if (!dialog || !screen) {
+    console.error("PanelShelf: Auth dialog or loading screen is missing.");
+    return;
+  }
+
+  if (dialog.open) {
+    return;
+  }
+
+  // Show the racing/loading transition first
+  await runLoaderSequence();
+
+  // Open the authentication dialog AFTER the transition
+  dialog.showModal();
+
+  // Fade the loading screen away
+  await hideLoaderSequence();
+}
+
+$("#open-auth-button").addEventListener(
+  "click",
+  openAuthWithLoader
+);
 
 $("#close-auth-button").addEventListener("click", () => {
   $("#auth-dialog").close();
@@ -661,7 +775,10 @@ $("#toggle-password-button").addEventListener("click", () => {
   const showing = password.type === "text";
 
   password.type = showing ? "password" : "text";
-  $("#toggle-password-button").textContent = showing ? "Show" : "Hide";
+
+  $("#toggle-password-button").textContent = showing
+    ? "Show"
+    : "Hide";
 });
 
 $("#toggle-new-password-button").addEventListener("click", () => {
@@ -669,23 +786,41 @@ $("#toggle-new-password-button").addEventListener("click", () => {
   const showing = password.type === "text";
 
   password.type = showing ? "password" : "text";
-  $("#toggle-new-password-button").textContent = showing ? "Show" : "Hide";
+
+  $("#toggle-new-password-button").textContent = showing
+    ? "Show"
+    : "Hide";
 });
 
+// SUBMIT HANDLE: Correctly spaces the asynchronous timeline out so the loader runs first!
 $("#auth-form").addEventListener("submit", async (event) => {
   event.preventDefault();
 
-  const { error } = await supabaseClient.auth.signInWithPassword({
-    email: $("#auth-email").value,
-    password: $("#auth-password").value,
-  });
+  const dialog = $("#auth-dialog");
+  const email = $("#auth-email").value;
+  const password = $("#auth-password").value;
 
-  $("#auth-message").textContent = error ? error.message : "";
+  dialog.close();
 
-  if (!error) {
-    $("#auth-dialog").close();
+  await runLoaderSequence();
+
+  const { error } =
+    await supabaseClient.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+  await hideLoaderSequence();
+
+  if (error) {
+    dialog.showModal();
+    $("#auth-message").textContent = error.message;
+    return;
   }
+
+  $("#auth-message").textContent = "";
 });
+
 
 $("#sign-up-button").addEventListener("click", async () => {
   const { error } = await supabaseClient.auth.signUp({
@@ -721,13 +856,15 @@ $("#forgot-password-button").addEventListener("click", async () => {
   if (!email) {
     $("#auth-message").textContent =
       "Enter your email address first, then select Reset password.";
+
     $("#auth-email").focus();
     return;
   }
 
-  const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-    redirectTo: redirectUrl(),
-  });
+  const { error } =
+    await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: redirectUrl(),
+    });
 
   $("#auth-message").textContent = error
     ? error.message
@@ -743,10 +880,13 @@ $("#reset-password-form").addEventListener("submit", async (event) => {
   if (password !== confirmation) {
     $("#reset-password-message").textContent =
       "The passwords do not match.";
+
     return;
   }
 
-  const { error } = await supabaseClient.auth.updateUser({ password });
+  const { error } = await supabaseClient.auth.updateUser({
+    password,
+  });
 
   $("#reset-password-message").textContent = error
     ? error.message
@@ -798,5 +938,122 @@ async function startPanelShelf() {
     loadComics();
   });
 }
+
+(() => {
+  const deleteAccountButton = document.querySelector(
+    "#delete-account-button"
+  );
+
+  const deleteAccountDialog = document.querySelector(
+    "#delete-account-dialog"
+  );
+
+  const deleteAccountForm = document.querySelector(
+    "#delete-account-form"
+  );
+
+  const deleteAccountConfirmation = document.querySelector(
+    "#delete-account-confirmation"
+  );
+
+  const deleteAccountMessage = document.querySelector(
+    "#delete-account-message"
+  );
+
+  const cancelDeleteAccountButton = document.querySelector(
+    "#cancel-delete-account-button"
+  );
+
+  if (
+    !deleteAccountButton ||
+    !deleteAccountDialog ||
+    !deleteAccountForm ||
+    !deleteAccountConfirmation ||
+    !deleteAccountMessage ||
+    !cancelDeleteAccountButton
+  ) {
+    return;
+  }
+
+  function updateDeleteAccountButton(session) {
+    deleteAccountButton.hidden = !session?.user;
+  }
+
+  deleteAccountButton.addEventListener("click", () => {
+    deleteAccountMessage.textContent = "";
+    deleteAccountConfirmation.value = "";
+    deleteAccountDialog.showModal();
+    deleteAccountConfirmation.focus();
+  });
+
+  cancelDeleteAccountButton.addEventListener("click", () => {
+    deleteAccountDialog.close();
+  });
+
+  deleteAccountDialog.addEventListener("close", () => {
+    deleteAccountForm.reset();
+    deleteAccountMessage.textContent = "";
+  });
+
+  deleteAccountForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    if (deleteAccountConfirmation.value.trim() !== "DELETE") {
+      deleteAccountMessage.textContent =
+        "Type DELETE exactly to continue.";
+
+      deleteAccountConfirmation.focus();
+      return;
+    }
+
+    const submitButton = deleteAccountForm.querySelector(
+      'button[type="submit"]'
+    );
+
+    submitButton.disabled = true;
+    deleteAccountMessage.textContent = "Deleting your account...";
+
+    try {
+      const { error } = await supabaseClient.functions.invoke(
+        "delete-account",
+        {
+          body: {
+            confirmation: "DELETE",
+          },
+        }
+      );
+
+      if (error) {
+        throw error;
+      }
+
+      deleteAccountMessage.textContent =
+        "Your account has been permanently deleted.";
+
+      await supabaseClient.auth.signOut({
+        scope: "local",
+      });
+
+      window.setTimeout(() => {
+        window.location.assign("index.html");
+      }, 1200);
+    } catch (error) {
+      console.error("Account deletion failed:", error);
+
+      deleteAccountMessage.textContent =
+        "PanelShelf could not delete your account. Please try again.";
+
+      submitButton.disabled = false;
+    }
+  });
+
+  supabaseClient.auth.getUser().then(({ data }) => {
+    updateDeleteAccountButton(data);
+  });
+
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    updateDeleteAccountButton(session);
+  });
+})();
 
 startPanelShelf();

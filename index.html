@@ -33,17 +33,18 @@
       </div>
     </div>
 
-    <nav aria-label="Main navigation">
-      <button class="nav-button active" data-view="home-view" type="button">
-        Home
-      </button>
-      <button class="nav-button" data-view="add-view" type="button">
-        Add item
-      </button>
-      <button class="nav-button" data-view="collection-view" type="button">
-        Collection
-      </button>
-    </nav>
+    <div class="comic-radio-group" role="radiogroup" aria-label="Main navigation">
+      <input type="radio" id="nav-home" name="main-nav" value="home-view" checked>
+      <label for="nav-home">Home</label>
+
+      <input type="radio" id="nav-add" name="main-nav" value="add-view">
+      <label for="nav-add">Add item</label>
+
+      <input type="radio" id="nav-collection" name="main-nav" value="collection-view">
+      <label for="nav-collection">Collection</label>
+
+      <div class="comic-glider"></div>
+    </div>
   </header>
 
   <main>
@@ -250,6 +251,32 @@
     </section>
   </main>
 
+  <div id="loading-screen" class="loading-screen" role="status" aria-live="polite" hidden>
+    <span class="sr-only">Loading the sign in form</span>
+
+    <div class="longfazers" aria-hidden="true">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
+
+    <div class="loader" aria-hidden="true">
+      <span>
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </span>
+      <div class="base">
+        <span></span>
+        <div class="face"></div>
+      </div>
+    </div>
+
+    <p class="loading-label" aria-hidden="true">Loading...</p>
+  </div>
+
   <dialog id="auth-dialog" aria-labelledby="auth-heading">
     <form id="auth-form">
       <div class="dialog-heading">
@@ -424,6 +451,46 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="supabase-config.js"></script>
   <script src="app.js"></script>
+  <script src="mobile-auth.js"></script>
   <script src="founder-status.js"></script>
+
+  <footer class="site-footer">
+    <a href="privacy.html">Privacy</a>
+    <a href="mailto:leslydtech@gmail.com">Support</a>
+    <button type="button" id="delete-account-button" class="delete-account-button" hidden>
+      Delete my account
+    </button>
+  </footer>
+
+  <dialog id="delete-account-dialog" class="delete-account-dialog" aria-labelledby="delete-account-title">
+    <form id="delete-account-form">
+      <h2 id="delete-account-title">Delete Account</h2>
+
+      <p>
+        This permanently deletes your PanelShelf account, collection items,
+        uploaded covers, and saved data. This cannot be undone.
+      </p>
+
+      <label for="delete-account-confirmation">
+        Type DELETE to continue
+        <input
+          id="delete-account-confirmation"
+          type="text"
+          autocomplete="off"
+          required>
+      </label>
+
+      <p id="delete-account-message" role="status" aria-live="polite"></p>
+
+      <div class="delete-account-actions">
+        <button type="button" id="cancel-delete-account-button">
+          Cancel
+        </button>
+        <button type="submit" class="delete-account-button">
+          Permanently delete
+        </button>
+      </div>
+    </form>
+  </dialog>
 </body>
 </html>
