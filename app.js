@@ -13,6 +13,10 @@ const recentList = $("#recent-list");
 const emptyMessage = $("#empty-message");
 const filterEmptyMessage = $("#filter-empty-message");
 
+/* =========================================
+   BASIC HELPERS
+========================================= */
+
 function typeName(type) {
   return {
     comic_issue: "Comic issue",
@@ -68,6 +72,10 @@ function setCoverPreview(container, coverUrl, title) {
   container.append(image);
 }
 
+/* =========================================
+   COLLECTION CARD
+========================================= */
+
 function createComicCard(comic) {
   const card = document.createElement("article");
   card.className = "comic-card";
@@ -114,13 +122,19 @@ function createComicCard(comic) {
   editButton.type = "button";
   editButton.className = "edit-button";
   editButton.textContent = "Edit";
-  editButton.addEventListener("click", () => openEditDialog(comic));
+
+  editButton.addEventListener("click", () => {
+    openEditDialog(comic);
+  });
 
   const removeButton = document.createElement("button");
   removeButton.type = "button";
   removeButton.className = "delete-button";
   removeButton.textContent = "Remove";
-  removeButton.addEventListener("click", () => removeComic(comic));
+
+  removeButton.addEventListener("click", () => {
+    removeComic(comic);
+  });
 
   actions.append(editButton, removeButton);
   card.append(actions);
@@ -128,67 +142,428 @@ function createComicCard(comic) {
   return card;
 }
 
+/* =========================================
+   DASHBOARD CARD
+========================================= */
+
+function createDashboardComic(comic) {
+  const card = document.createElement("article");
+  card.className = "dashboard-comic";
+
+  if (comic.cover_url) {
+    const image = document.createElement("img");
+    image.src = comic.cover_url;
+    image.alt = `${comic.series} cover`;
+    image.loading = "lazy";
+    card.append(image);
+  } else {
+    const placeholder = document.createElement("div");
+    placeholder.className = "dashboard-cover-placeholder";
+    placeholder.textContent = "NO COVER";
+    card.append(placeholder);
+  }
+
+  const title = document.createElement("h3");
+  title.textContent = itemName(comic);
+
+  const publisher = document.createElement("p");
+  publisher.textContent =
+    comic.publisher || typeName(comic.item_type);
+
+  const status = document.createElement("p");
+  status.className = `status-badge status-${comic.status}`;
+  status.textContent = statusLabel(comic.status);
+
+  card.append(title, publisher, status);
+
+  return card;
+}
+
+/* =========================================
+   MINI READING CARD
+========================================= */
+
+function createMiniComic(comic) {
+  const card = document.createElement("article");
+  card.className = "mini-comic";
+
+  if (comic.cover_url) {
+    const image = document.createElement("img");
+    image.src = comic.cover_url;
+    image.alt = `${comic.series} cover`;
+    image.loading = "lazy";
+    card.append(image);
+  } else {
+    const placeholder = document.createElement("div");
+    placeholder.className = "mini-cover-placeholder";
+    placeholder.textContent = "NO COVER";
+    card.append(placeholder);
+  }
+
+  const details = document.createElement("div");
+
+  const title = document.createElement("h3");
+  title.textContent = itemName(comic);
+
+  const publisher = document.createElement("p");
+  publisher.textContent =
+    comic.publisher || typeName(comic.item_type);
+
+  details.append(title, publisher);
+  card.append(details);
+
+  return card;
+}
+
+/* =========================================
+   FEATURED COMIC
+========================================= */
+
+function renderFeaturedComic() {
+  const container = $("#featured-comic");
+
+  if (!container) {
+    return;
+  }
+
+  container.replaceChildren();
+
+  const comic = comics[0];
+
+  if (!comic) {
+    const empty = document.createElement("div");
+    empty.className = "featured-empty";
+
+    const icon = document.createElement("div");
+    icon.className = "empty-icon";
+    icon.textContent = "▤";
+
+    const title = document.createElement("h2");
+    title.textContent = "Your shelf is waiting.";
+
+    const copy = document.createElement("p");
+    copy.textContent =
+      "Add your first comic and it will appear here.";
+
+    const button = document.createElement("button");
+    button.className = "small-action";
+    button.type = "button";
+    button.textContent = "Add your first comic";
+
+    button.addEventListener("click", () => {
+      showView("add-view");
+    });
+
+    empty.append(icon, title, copy, button);
+    container.append(empty);
+
+    return;
+  }
+
+  const featured = document.createElement("div");
+  featured.className = "featured-item";
+
+  if (comic.cover_url) {
+    const image = document.createElement("img");
+    image.src = comic.cover_url;
+    image.alt = `${comic.series} cover`;
+    image.loading = "lazy";
+    featured.append(image);
+  } else {
+    const placeholder = document.createElement("div");
+    placeholder.className = "featured-cover-placeholder";
+    placeholder.textContent = "NO COVER";
+    featured.append(placeholder);
+  }
+
+  const details = document.createElement("div");
+  details.className = "featured-details";
+
+  const label = document.createElement("span");
+  label.className = "panel-label";
+  label.textContent = "LATEST ADDITION";
+
+  const title = document.createElement("h3");
+  title.textContent = itemName(comic);
+
+  const type = document.createElement("p");
+  type.textContent = typeName(comic.item_type);
+
+  const publisher = document.createElement("p");
+  publisher.textContent =
+    comic.publisher || "Publisher unknown";
+
+  const status = document.createElement("p");
+  status.className = `status-badge status-${comic.status}`;
+  status.textContent = statusLabel(comic.status);
+
+  details.append(
+    label,
+    title,
+    type,
+    publisher,
+    status
+  );
+
+  featured.append(details);
+  container.append(featured);
+}
+
+/* =========================================
+   DASHBOARD RENDERING
+========================================= */
+
+function renderDashboard() {
+  const dashboardGrid = $("#dashboard-comic-grid");
+  const recentGrid = $("#dashboard-recent-list");
+  const continueGrid = $("#continue-reading-list");
+
+  if (!dashboardGrid || !recentGrid || !continueGrid) {
+    return;
+  }
+
+  dashboardGrid.replaceChildren();
+  recentGrid.replaceChildren();
+  continueGrid.replaceChildren();
+
+  if (!user) {
+    const message = document.createElement("div");
+    message.className = "dashboard-empty";
+    message.textContent =
+      "Sign in and add comics to start building your shelf.";
+
+    dashboardGrid.append(message);
+
+    const recentMessage = document.createElement("div");
+    recentMessage.className = "dashboard-empty";
+    recentMessage.textContent =
+      "Sign in to see recently added comics.";
+
+    recentGrid.append(recentMessage);
+
+    const readingMessage = document.createElement("div");
+    readingMessage.className = "dashboard-empty";
+    readingMessage.textContent =
+      "Sign in to continue reading.";
+
+    continueGrid.append(readingMessage);
+
+    renderFeaturedComic();
+    return;
+  }
+
+  if (!comics.length) {
+    const message = document.createElement("div");
+    message.className = "dashboard-empty";
+    message.textContent =
+      "Your collection is empty. Add your first comic.";
+
+    dashboardGrid.append(message);
+
+    const recentMessage = document.createElement("div");
+    recentMessage.className = "dashboard-empty";
+    recentMessage.textContent =
+      "Add a comic to see it here.";
+
+    recentGrid.append(recentMessage);
+
+    const readingMessage = document.createElement("div");
+    readingMessage.className = "dashboard-empty";
+    readingMessage.textContent =
+      "Nothing currently marked as reading.";
+
+    continueGrid.append(readingMessage);
+
+    renderFeaturedComic();
+    return;
+  }
+
+  comics.slice(0, 4).forEach((comic) => {
+    dashboardGrid.append(createDashboardComic(comic));
+  });
+
+  comics.slice(0, 4).forEach((comic) => {
+    recentGrid.append(createDashboardComic(comic));
+  });
+
+  const reading = comics
+    .filter((comic) => comic.status === "reading")
+    .slice(0, 4);
+
+  if (!reading.length) {
+    const message = document.createElement("div");
+    message.className = "dashboard-empty";
+    message.textContent =
+      "Nothing currently marked as reading.";
+
+    continueGrid.append(message);
+  } else {
+    reading.forEach((comic) => {
+      continueGrid.append(createMiniComic(comic));
+    });
+  }
+
+  renderFeaturedComic();
+}
+
+/* =========================================
+   COLLECTION FILTERING
+========================================= */
+
 function getVisibleComics() {
-  const search = $("#collection-search").value.toLowerCase();
-  const selectedType = $("#collection-type-filter").value;
-  const selectedStatus = $("#collection-filter").value;
-  const sort = $("#collection-sort").value;
+  const searchInput = $("#collection-search");
+  const typeFilter = $("#collection-type-filter");
+  const statusFilter = $("#collection-filter");
+  const sortSelect = $("#collection-sort");
+
+  const search = searchInput
+    ? searchInput.value.toLowerCase()
+    : "";
+
+  const selectedType = typeFilter
+    ? typeFilter.value
+    : "all";
+
+  const selectedStatus = statusFilter
+    ? statusFilter.value
+    : "all";
+
+  const sort = sortSelect
+    ? sortSelect.value
+    : "newest";
 
   const visible = comics.filter((comic) => {
-    const text = `${comic.series} ${comic.publisher || ""}`.toLowerCase();
+    const text =
+      `${comic.series} ${comic.publisher || ""}`.toLowerCase();
 
     return (
       text.includes(search) &&
-      (selectedType === "all" || comic.item_type === selectedType) &&
-      (selectedStatus === "all" || comic.status === selectedStatus)
+      (
+        selectedType === "all" ||
+        comic.item_type === selectedType
+      ) &&
+      (
+        selectedStatus === "all" ||
+        comic.status === selectedStatus
+      )
     );
   });
 
   if (sort === "title") {
-    visible.sort((a, b) => a.series.localeCompare(b.series));
+    visible.sort((a, b) =>
+      a.series.localeCompare(b.series)
+    );
   }
 
   if (sort === "number") {
-    visible.sort((a, b) => (a.issue || 0) - (b.issue || 0));
+    visible.sort(
+      (a, b) =>
+        (a.issue || 0) - (b.issue || 0)
+    );
   }
 
   return visible;
 }
 
+/* =========================================
+   COLLECTION RENDER
+========================================= */
+
 function renderComics() {
+  if (!list || !recentList) {
+    return;
+  }
+
   list.replaceChildren();
   recentList.replaceChildren();
 
   const visible = getVisibleComics();
-  const recentEmptyMessage = $("#recent-empty-message");
+  const recentEmptyMessage =
+    $("#recent-empty-message");
 
-  emptyMessage.hidden = !user || comics.length > 0;
-  filterEmptyMessage.hidden = !user || !comics.length || visible.length > 0;
-
-  if (!user) {
-    emptyMessage.textContent = "Sign in to start building your collection.";
-    recentEmptyMessage.textContent = "Sign in to see recent items.";
-  } else if (!comics.length) {
-    emptyMessage.textContent = "Your collection is empty. Add your first item.";
-    recentEmptyMessage.textContent = "Add an item to see it here.";
+  if (emptyMessage) {
+    emptyMessage.hidden =
+      !user || comics.length > 0;
   }
 
-  visible.forEach((comic) => list.append(createComicCard(comic)));
-  comics.slice(0, 4).forEach((comic) => recentList.append(createComicCard(comic)));
+  if (filterEmptyMessage) {
+    filterEmptyMessage.hidden =
+      !user ||
+      !comics.length ||
+      visible.length > 0;
+  }
 
-  recentEmptyMessage.hidden = Boolean(user && comics.length);
+  if (!user) {
+    if (emptyMessage) {
+      emptyMessage.textContent =
+        "Sign in to start building your collection.";
+    }
 
-  $("#total-count").textContent = comics.length;
-  $("#owned-count").textContent = comics.filter(
-    (comic) => comic.status === "owned"
-  ).length;
-  $("#reading-count").textContent = comics.filter(
-    (comic) => comic.status === "reading"
-  ).length;
-  $("#wishlist-count").textContent = comics.filter(
-    (comic) => comic.status === "wishlist"
-  ).length;
+    if (recentEmptyMessage) {
+      recentEmptyMessage.textContent =
+        "Sign in to see recent items.";
+    }
+  } else if (!comics.length) {
+    if (emptyMessage) {
+      emptyMessage.textContent =
+        "Your collection is empty. Add your first item.";
+    }
+
+    if (recentEmptyMessage) {
+      recentEmptyMessage.textContent =
+        "Add an item to see it here.";
+    }
+  }
+
+  visible.forEach((comic) => {
+    list.append(createComicCard(comic));
+  });
+
+  comics.slice(0, 4).forEach((comic) => {
+    recentList.append(createComicCard(comic));
+  });
+
+  if (recentEmptyMessage) {
+    recentEmptyMessage.hidden =
+      Boolean(user && comics.length);
+  }
+
+  const totalCount = $("#total-count");
+  const ownedCount = $("#owned-count");
+  const readingCount = $("#reading-count");
+  const wishlistCount = $("#wishlist-count");
+
+  if (totalCount) {
+    totalCount.textContent = comics.length;
+  }
+
+  if (ownedCount) {
+    ownedCount.textContent =
+      comics.filter(
+        (comic) => comic.status === "owned"
+      ).length;
+  }
+
+  if (readingCount) {
+    readingCount.textContent =
+      comics.filter(
+        (comic) => comic.status === "reading"
+      ).length;
+  }
+
+  if (wishlistCount) {
+    wishlistCount.textContent =
+      comics.filter(
+        (comic) => comic.status === "wishlist"
+      ).length;
+  }
+
+  renderDashboard();
 }
+
+/* =========================================
+   LOAD COMICS
+========================================= */
 
 async function loadComics() {
   if (!user) {
@@ -197,14 +572,20 @@ async function loadComics() {
     return;
   }
 
-  const { data, error } = await supabaseClient
-    .from("comics")
-    .select("*")
-    .eq("user_id", user.id)
-    .order("created_at", { ascending: false });
+  const { data, error } =
+    await supabaseClient
+      .from("comics")
+      .select("*")
+      .eq("user_id", user.id)
+      .order("created_at", {
+        ascending: false,
+      });
 
   if (error) {
-    console.error(error);
+    console.error(
+      "PanelShelf could not load comics:",
+      error
+    );
     return;
   }
 
@@ -212,62 +593,114 @@ async function loadComics() {
   renderComics();
 }
 
+/* =========================================
+   COVER STORAGE
+========================================= */
+
 async function deleteStoredCover(coverPath) {
   if (!coverPath) {
     return;
   }
 
-  const { error } = await supabaseClient.storage
-    .from(coverBucket)
-    .remove([coverPath]);
+  const { error } =
+    await supabaseClient.storage
+      .from(coverBucket)
+      .remove([coverPath]);
 
   if (error) {
-    console.error("Could not delete cover image:", error);
+    console.error(
+      "Could not delete cover image:",
+      error
+    );
   }
 }
 
-async function removeComic(comic) {
-  if (!confirm(`Remove ${itemName(comic)} from your collection?`)) {
-    return;
+async function uploadCover(file) {
+  if (!user) {
+    throw new Error(
+      "Please sign in before uploading a cover."
+    );
   }
 
-  const { error } = await supabaseClient
-    .from("comics")
-    .delete()
-    .eq("id", comic.id);
+  const acceptedTypes = [
+    "image/jpeg",
+    "image/png",
+    "image/webp",
+    "image/gif",
+  ];
+
+  if (!acceptedTypes.includes(file.type)) {
+    throw new Error(
+      "Choose a PNG, JPG, WEBP, or GIF image."
+    );
+  }
+
+  if (file.size > 4 * 1024 * 1024) {
+    throw new Error(
+      "Choose an image smaller than 4 MB."
+    );
+  }
+
+  const path =
+    `${user.id}/${crypto.randomUUID()}.${fileExtension(file)}`;
+
+  const { error } =
+    await supabaseClient.storage
+      .from(coverBucket)
+      .upload(path, file, {
+        cacheControl: "31536000",
+        contentType: file.type,
+      });
 
   if (error) {
-    alert("PanelShelf could not remove that item. Please try again.");
-    return;
+    throw new Error(
+      "PanelShelf could not upload that image."
+    );
   }
 
-  await deleteStoredCover(comic.cover_path);
-  comics = comics.filter((item) => item.id !== comic.id);
-  renderComics();
+  const { data } =
+    supabaseClient.storage
+      .from(coverBucket)
+      .getPublicUrl(path);
+
+  return {
+    path,
+    url: data.publicUrl,
+  };
 }
 
-function openEditDialog(comic) {
-  $("#edit-id").value = comic.id;
-  $("#edit-item-type").value = comic.item_type;
-  $("#edit-series").value = comic.series;
-  $("#edit-issue").value = comic.issue || "";
-  $("#edit-publisher").value = comic.publisher || "";
-  $("#edit-notes").value = comic.notes || "";
-  $("#edit-status").value = comic.status;
-  $("#edit-cover-url").value = comic.cover_url || "";
-  $("#edit-cover-path").value = comic.cover_path || "";
-  $("#edit-cover-message").textContent = "";
-  $("#edit-cover-suggestions").replaceChildren();
+function fileExtension(file) {
+  const extension =
+    file.name
+      .split(".")
+      .pop()
+      ?.toLowerCase();
 
-  setCoverPreview($("#edit-cover-preview"), comic.cover_url, comic.series);
-  $("#edit-dialog").showModal();
+  if (
+    extension &&
+    /^[a-z0-9]+$/.test(extension)
+  ) {
+    return extension;
+  }
+
+  return "jpg";
 }
+
+/* =========================================
+   COVER SEARCH
+========================================= */
 
 async function getFunctionError(error) {
   try {
     if (error.context) {
-      const details = await error.context.json();
-      return details.error || details.message;
+      const details =
+        await error.context.json();
+
+      return (
+        details.error ||
+        details.message ||
+        ""
+      );
     }
   } catch {
     return "";
@@ -276,22 +709,35 @@ async function getFunctionError(error) {
   return "";
 }
 
-async function findCoverSuggestions(title, issue, publisher, itemType) {
-  const { data, error } = await supabaseClient.functions.invoke(
-    coverFunctionName,
-    {
-      body: {
-        title,
-        issue: issue ? Number(issue) : null,
-        publisher,
-        itemType,
-      },
-    }
-  );
+async function findCoverSuggestions(
+  title,
+  issue,
+  publisher,
+  itemType
+) {
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      coverFunctionName,
+      {
+        body: {
+          title,
+          issue: issue
+            ? Number(issue)
+            : null,
+          publisher,
+          itemType,
+        },
+      }
+    );
 
   if (error) {
-    const message = await getFunctionError(error);
-    throw new Error(message || "Cover search is unavailable right now.");
+    const message =
+      await getFunctionError(error);
+
+    throw new Error(
+      message ||
+        "Cover search is unavailable right now."
+    );
   }
 
   return data?.covers || [];
@@ -306,320 +752,573 @@ function displayCoverSuggestions(
   container.replaceChildren();
 
   covers.forEach((coverUrl) => {
-    const button = document.createElement("button");
+    const button =
+      document.createElement("button");
+
     button.type = "button";
     button.className = "cover-option";
-    button.setAttribute("aria-label", `Use this cover for ${title}`);
 
-    const image = document.createElement("img");
+    button.setAttribute(
+      "aria-label",
+      `Use this cover for ${title}`
+    );
+
+    const image =
+      document.createElement("img");
+
     image.src = coverUrl;
-    image.alt = `Suggested cover for ${title}`;
+    image.alt =
+      `Suggested cover for ${title}`;
     image.loading = "lazy";
 
     button.append(image);
-    button.addEventListener("click", () => onSelect(coverUrl));
+
+    button.addEventListener(
+      "click",
+      () => onSelect(coverUrl)
+    );
+
     container.append(button);
   });
 }
 
-function fileExtension(file) {
-  const extension = file.name.split(".").pop()?.toLowerCase();
+/* =========================================
+   ADD COMIC
+========================================= */
 
-  if (extension && /^[a-z0-9]+$/.test(extension)) {
-    return extension;
-  }
+if (form) {
+  form.addEventListener(
+    "submit",
+    async (event) => {
+      event.preventDefault();
 
-  return "jpg";
-}
+      if (!user) {
+        $("#auth-dialog").showModal();
+        return;
+      }
 
-async function uploadCover(file) {
-  if (!user) {
-    throw new Error("Please sign in before uploading a cover.");
-  }
+      const comic = {
+        user_id: user.id,
+        item_type: $("#item-type").value,
+        series: $("#series").value.trim(),
+        issue: $("#issue").value
+          ? Number($("#issue").value)
+          : null,
+        publisher:
+          $("#publisher").value.trim() ||
+          null,
+        notes:
+          $("#notes").value.trim() ||
+          null,
+        status: $("#status").value,
+        cover_url:
+          $("#selected-cover-url").value ||
+          null,
+        cover_path:
+          $("#selected-cover-path").value ||
+          null,
+      };
 
-  const acceptedTypes = [
-    "image/jpeg",
-    "image/png",
-    "image/webp",
-    "image/gif",
-  ];
+      const {
+        data,
+        error,
+      } = await supabaseClient
+        .from("comics")
+        .insert(comic)
+        .select()
+        .single();
 
-  if (!acceptedTypes.includes(file.type)) {
-    throw new Error("Choose a PNG, JPG, WEBP, or GIF image.");
-  }
+      if (error) {
+        $("#cover-message").textContent =
+          "PanelShelf could not save this item. Please try again.";
+        return;
+      }
 
-  if (file.size > 4 * 1024 * 1024) {
-    throw new Error("Choose an image smaller than 4 MB.");
-  }
+      comics.unshift(data);
 
-  const path = `${user.id}/${crypto.randomUUID()}.${fileExtension(file)}`;
+      form.reset();
 
-  const { error } = await supabaseClient.storage
-    .from(coverBucket)
-    .upload(path, file, {
-      cacheControl: "31536000",
-      contentType: file.type,
-    });
+      $("#selected-cover-url").value = "";
+      $("#selected-cover-path").value = "";
 
-  if (error) {
-    throw new Error("PanelShelf could not upload that image.");
-  }
+      $("#cover-suggestions")
+        .replaceChildren();
 
-  const { data } = supabaseClient.storage
-    .from(coverBucket)
-    .getPublicUrl(path);
+      $("#cover-message").textContent =
+        "Added to your shelf.";
 
-  return {
-    path,
-    url: data.publicUrl,
-  };
-}
+      renderComics();
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  if (!user) {
-    $("#auth-dialog").showModal();
-    return;
-  }
-
-  const comic = {
-    user_id: user.id,
-    item_type: $("#item-type").value,
-    series: $("#series").value.trim(),
-    issue: $("#issue").value ? Number($("#issue").value) : null,
-    publisher: $("#publisher").value.trim() || null,
-    notes: $("#notes").value.trim() || null,
-    status: $("#status").value,
-    cover_url: $("#selected-cover-url").value || null,
-    cover_path: $("#selected-cover-path").value || null,
-  };
-
-  const { data, error } = await supabaseClient
-    .from("comics")
-    .insert(comic)
-    .select()
-    .single();
-
-  if (error) {
-    $("#cover-message").textContent =
-      "PanelShelf could not save this item. Please try again.";
-    return;
-  }
-
-  comics.unshift(data);
-  form.reset();
-  $("#selected-cover-url").value = "";
-  $("#selected-cover-path").value = "";
-  $("#cover-suggestions").replaceChildren();
-  $("#cover-message").textContent = "Added to your shelf.";
-  renderComics();
-});
-
-$("#find-cover-button").addEventListener("click", async () => {
-  const button = $("#find-cover-button");
-  const title = $("#series").value.trim();
-  const issue = $("#issue").value.trim();
-  const publisher = $("#publisher").value.trim();
-  const itemType = $("#item-type").value;
-  const message = $("#cover-message");
-
-  if (!user) {
-    $("#auth-dialog").showModal();
-    return;
-  }
-
-  if (!title) {
-    message.textContent = "Add a title first.";
-    $("#series").focus();
-    return;
-  }
-
-  setLoading(button, true, "Find cover");
-  message.textContent = "Searching for covers...";
-  $("#cover-suggestions").replaceChildren();
-
-  try {
-    const covers = await findCoverSuggestions(
-      title,
-      issue,
-      publisher,
-      itemType
-    );
-
-    if (!covers.length) {
-      message.textContent =
-        "No matching cover found. You can upload your own instead.";
-      return;
+      showView("collection-view");
     }
+  );
+}
 
-    displayCoverSuggestions(
-      $("#cover-suggestions"),
-      covers,
-      title,
-      (coverUrl) => {
-        $("#selected-cover-url").value = coverUrl;
-        $("#selected-cover-path").value = "";
+/* =========================================
+   FIND COVER
+========================================= */
+
+const findCoverButton =
+  $("#find-cover-button");
+
+if (findCoverButton) {
+  findCoverButton.addEventListener(
+    "click",
+    async () => {
+      const button =
+        $("#find-cover-button");
+
+      const title =
+        $("#series").value.trim();
+
+      const issue =
+        $("#issue").value.trim();
+
+      const publisher =
+        $("#publisher").value.trim();
+
+      const itemType =
+        $("#item-type").value;
+
+      const message =
+        $("#cover-message");
+
+      if (!user) {
+        $("#auth-dialog").showModal();
+        return;
+      }
+
+      if (!title) {
         message.textContent =
-          "Cover selected. Add it to your shelf when ready.";
+          "Add a title first.";
+
+        $("#series").focus();
+        return;
       }
-    );
 
-    message.textContent = "Choose one of the suggested covers.";
-  } catch (error) {
-    message.textContent =
-      error.message || "Cover search is unavailable right now.";
-  } finally {
-    setLoading(button, false, "Find cover");
-  }
-});
+      setLoading(
+        button,
+        true,
+        "Find Cover"
+      );
 
-$("#cover-upload").addEventListener("change", async () => {
-  const file = $("#cover-upload").files[0];
-
-  if (!file) {
-    return;
-  }
-
-  try {
-    $("#cover-message").textContent = "Uploading your cover...";
-    const cover = await uploadCover(file);
-
-    $("#selected-cover-url").value = cover.url;
-    $("#selected-cover-path").value = cover.path;
-    $("#cover-message").textContent =
-      "Your cover is ready. Add it to your shelf when ready.";
-  } catch (error) {
-    $("#cover-message").textContent = error.message;
-  }
-});
-
-$("#edit-find-cover-button").addEventListener("click", async () => {
-  const button = $("#edit-find-cover-button");
-  const title = $("#edit-series").value.trim();
-  const issue = $("#edit-issue").value.trim();
-  const publisher = $("#edit-publisher").value.trim();
-  const itemType = $("#edit-item-type").value;
-  const message = $("#edit-cover-message");
-
-  if (!title) {
-    message.textContent = "Add a title first.";
-    $("#edit-series").focus();
-    return;
-  }
-
-  setLoading(button, true, "Find replacement cover");
-  message.textContent = "Searching for covers...";
-  $("#edit-cover-suggestions").replaceChildren();
-
-  try {
-    const covers = await findCoverSuggestions(
-      title,
-      issue,
-      publisher,
-      itemType
-    );
-
-    if (!covers.length) {
       message.textContent =
-        "No matching cover found. You can upload your own instead.";
-      return;
-    }
+        "Searching for covers...";
 
-    displayCoverSuggestions(
-      $("#edit-cover-suggestions"),
-      covers,
-      title,
-      (coverUrl) => {
-        $("#edit-cover-url").value = coverUrl;
-        $("#edit-cover-path").value = "";
-        setCoverPreview($("#edit-cover-preview"), coverUrl, title);
-        message.textContent = "Replacement cover selected.";
+      $("#cover-suggestions")
+        .replaceChildren();
+
+      try {
+        const covers =
+          await findCoverSuggestions(
+            title,
+            issue,
+            publisher,
+            itemType
+          );
+
+        if (!covers.length) {
+          message.textContent =
+            "No matching cover found. You can upload your own instead.";
+          return;
+        }
+
+        displayCoverSuggestions(
+          $("#cover-suggestions"),
+          covers,
+          title,
+          (coverUrl) => {
+            $("#selected-cover-url").value =
+              coverUrl;
+
+            $("#selected-cover-path").value =
+              "";
+
+            message.textContent =
+              "Cover selected. Add it to your shelf when ready.";
+          }
+        );
+
+        message.textContent =
+          "Choose one of the suggested covers.";
+      } catch (error) {
+        message.textContent =
+          error.message ||
+          "Cover search is unavailable right now.";
+      } finally {
+        setLoading(
+          button,
+          false,
+          "Find Cover"
+        );
       }
-    );
+    }
+  );
+}
 
-    message.textContent = "Choose a replacement cover.";
-  } catch (error) {
-    message.textContent =
-      error.message || "Cover search is unavailable right now.";
-  } finally {
-    setLoading(button, false, "Find replacement cover");
-  }
-});
+/* =========================================
+   COVER UPLOAD
+========================================= */
 
-$("#edit-cover-upload").addEventListener("change", async () => {
-  const file = $("#edit-cover-upload").files[0];
+const coverUpload =
+  $("#cover-upload");
 
-  if (!file) {
-    return;
-  }
+if (coverUpload) {
+  coverUpload.addEventListener(
+    "change",
+    async () => {
+      const file =
+        coverUpload.files[0];
 
-  try {
-    $("#edit-cover-message").textContent =
-      "Uploading replacement cover...";
+      if (!file) {
+        return;
+      }
 
-    const cover = await uploadCover(file);
+      try {
+        $("#cover-message").textContent =
+          "Uploading your cover...";
 
-    $("#edit-cover-url").value = cover.url;
-    $("#edit-cover-path").value = cover.path;
+        const cover =
+          await uploadCover(file);
 
-    setCoverPreview(
-      $("#edit-cover-preview"),
-      cover.url,
-      $("#edit-series").value
-    );
+        $("#selected-cover-url").value =
+          cover.url;
 
-    $("#edit-cover-message").textContent = "Replacement cover ready.";
-  } catch (error) {
-    $("#edit-cover-message").textContent = error.message;
-  }
-});
+        $("#selected-cover-path").value =
+          cover.path;
 
-$("#edit-form").addEventListener("submit", async (event) => {
-  event.preventDefault();
+        $("#cover-message").textContent =
+          "Your cover is ready. Add it to your shelf when ready.";
+      } catch (error) {
+        $("#cover-message").textContent =
+          error.message;
+      }
+    }
+  );
+}
 
-  const id = $("#edit-id").value;
-  const oldComic = comics.find(
-    (comic) => String(comic.id) === String(id)
+/* =========================================
+   EDIT DIALOG
+========================================= */
+
+function openEditDialog(comic) {
+  $("#edit-id").value = comic.id;
+
+  $("#edit-item-type").value =
+    comic.item_type;
+
+  $("#edit-series").value =
+    comic.series;
+
+  $("#edit-issue").value =
+    comic.issue || "";
+
+  $("#edit-publisher").value =
+    comic.publisher || "";
+
+  $("#edit-notes").value =
+    comic.notes || "";
+
+  $("#edit-status").value =
+    comic.status;
+
+  $("#edit-cover-url").value =
+    comic.cover_url || "";
+
+  $("#edit-cover-path").value =
+    comic.cover_path || "";
+
+  $("#edit-cover-message").textContent =
+    "";
+
+  $("#edit-cover-suggestions")
+    .replaceChildren();
+
+  setCoverPreview(
+    $("#edit-cover-preview"),
+    comic.cover_url,
+    comic.series
   );
 
-  const newCoverPath = $("#edit-cover-path").value || null;
+  $("#edit-dialog").showModal();
+}
 
-  const updates = {
-    item_type: $("#edit-item-type").value,
-    series: $("#edit-series").value.trim(),
-    issue: $("#edit-issue").value
-      ? Number($("#edit-issue").value)
-      : null,
-    publisher: $("#edit-publisher").value.trim() || null,
-    notes: $("#edit-notes").value.trim() || null,
-    status: $("#edit-status").value,
-    cover_url: $("#edit-cover-url").value || null,
-    cover_path: newCoverPath,
-  };
+const editFindCoverButton =
+  $("#edit-find-cover-button");
 
-  const { error } = await supabaseClient
-    .from("comics")
-    .update(updates)
-    .eq("id", id);
+if (editFindCoverButton) {
+  editFindCoverButton.addEventListener(
+    "click",
+    async () => {
+      const button =
+        $("#edit-find-cover-button");
 
-  if (error) {
-    $("#edit-message").textContent =
-      "PanelShelf could not save those changes. Please try again.";
+      const title =
+        $("#edit-series").value.trim();
+
+      const issue =
+        $("#edit-issue").value.trim();
+
+      const publisher =
+        $("#edit-publisher").value.trim();
+
+      const itemType =
+        $("#edit-item-type").value;
+
+      const message =
+        $("#edit-cover-message");
+
+      if (!title) {
+        message.textContent =
+          "Add a title first.";
+
+        $("#edit-series").focus();
+        return;
+      }
+
+      setLoading(
+        button,
+        true,
+        "Find Replacement Cover"
+      );
+
+      message.textContent =
+        "Searching for covers...";
+
+      $("#edit-cover-suggestions")
+        .replaceChildren();
+
+      try {
+        const covers =
+          await findCoverSuggestions(
+            title,
+            issue,
+            publisher,
+            itemType
+          );
+
+        if (!covers.length) {
+          message.textContent =
+            "No matching cover found. You can upload your own instead.";
+          return;
+        }
+
+        displayCoverSuggestions(
+          $("#edit-cover-suggestions"),
+          covers,
+          title,
+          (coverUrl) => {
+            $("#edit-cover-url").value =
+              coverUrl;
+
+            $("#edit-cover-path").value =
+              "";
+
+            setCoverPreview(
+              $("#edit-cover-preview"),
+              coverUrl,
+              title
+            );
+
+            message.textContent =
+              "Replacement cover selected.";
+          }
+        );
+
+        message.textContent =
+          "Choose a replacement cover.";
+      } catch (error) {
+        message.textContent =
+          error.message ||
+          "Cover search is unavailable right now.";
+      } finally {
+        setLoading(
+          button,
+          false,
+          "Find Replacement Cover"
+        );
+      }
+    }
+  );
+}
+
+const editCoverUpload =
+  $("#edit-cover-upload");
+
+if (editCoverUpload) {
+  editCoverUpload.addEventListener(
+    "change",
+    async () => {
+      const file =
+        editCoverUpload.files[0];
+
+      if (!file) {
+        return;
+      }
+
+      try {
+        $("#edit-cover-message").textContent =
+          "Uploading replacement cover...";
+
+        const cover =
+          await uploadCover(file);
+
+        $("#edit-cover-url").value =
+          cover.url;
+
+        $("#edit-cover-path").value =
+          cover.path;
+
+        setCoverPreview(
+          $("#edit-cover-preview"),
+          cover.url,
+          $("#edit-series").value
+        );
+
+        $("#edit-cover-message").textContent =
+          "Replacement cover ready.";
+      } catch (error) {
+        $("#edit-cover-message").textContent =
+          error.message;
+      }
+    }
+  );
+}
+
+const editForm =
+  $("#edit-form");
+
+if (editForm) {
+  editForm.addEventListener(
+    "submit",
+    async (event) => {
+      event.preventDefault();
+
+      const id =
+        $("#edit-id").value;
+
+      const oldComic =
+        comics.find(
+          (comic) =>
+            String(comic.id) ===
+            String(id)
+        );
+
+      const newCoverPath =
+        $("#edit-cover-path").value ||
+        null;
+
+      const updates = {
+        item_type:
+          $("#edit-item-type").value,
+
+        series:
+          $("#edit-series").value.trim(),
+
+        issue:
+          $("#edit-issue").value
+            ? Number($("#edit-issue").value)
+            : null,
+
+        publisher:
+          $("#edit-publisher").value.trim() ||
+          null,
+
+        notes:
+          $("#edit-notes").value.trim() ||
+          null,
+
+        status:
+          $("#edit-status").value,
+
+        cover_url:
+          $("#edit-cover-url").value ||
+          null,
+
+        cover_path:
+          newCoverPath,
+      };
+
+      const { error } =
+        await supabaseClient
+          .from("comics")
+          .update(updates)
+          .eq("id", id);
+
+      if (error) {
+        $("#edit-message").textContent =
+          "PanelShelf could not save those changes. Please try again.";
+        return;
+      }
+
+      if (
+        oldComic?.cover_path &&
+        oldComic.cover_path !== newCoverPath
+      ) {
+        await deleteStoredCover(
+          oldComic.cover_path
+        );
+      }
+
+      $("#edit-dialog").close();
+
+      await loadComics();
+    }
+  );
+}
+
+/* =========================================
+   REMOVE COMIC
+========================================= */
+
+async function removeComic(comic) {
+  if (
+    !confirm(
+      `Remove ${itemName(comic)} from your collection?`
+    )
+  ) {
     return;
   }
 
-  if (oldComic?.cover_path && oldComic.cover_path !== newCoverPath) {
-    await deleteStoredCover(oldComic.cover_path);
+  const { error } =
+    await supabaseClient
+      .from("comics")
+      .delete()
+      .eq("id", comic.id);
+
+  if (error) {
+    alert(
+      "PanelShelf could not remove that item. Please try again."
+    );
+    return;
   }
 
-  $("#edit-dialog").close();
-  await loadComics();
-});
+  await deleteStoredCover(
+    comic.cover_path
+  );
+
+  comics = comics.filter(
+    (item) => item.id !== comic.id
+  );
+
+  renderComics();
+}
+
+/* =========================================
+   CSV EXPORT
+========================================= */
 
 function exportCsv() {
   const rows = [
-    ["Type", "Title", "Issue/Volume", "Publisher", "Status", "Notes"],
+    [
+      "Type",
+      "Title",
+      "Issue/Volume",
+      "Publisher",
+      "Status",
+      "Notes",
+    ],
+
     ...comics.map((comic) => [
       typeName(comic.item_type),
       comic.series,
@@ -633,44 +1332,147 @@ function exportCsv() {
   const csv = rows
     .map((row) =>
       row
-        .map((value) => `"${String(value).replaceAll('"', '""')}"`)
+        .map(
+          (value) =>
+            `"${String(value).replaceAll('"', '""')}"`
+        )
         .join(",")
     )
     .join("\n");
 
-  const link = document.createElement("a");
+  const link =
+    document.createElement("a");
 
-  link.href = URL.createObjectURL(
-    new Blob([csv], { type: "text/csv;charset=utf-8" })
+  const blob = new Blob(
+    [csv],
+    {
+      type: "text/csv;charset=utf-8",
+    }
   );
 
-  link.download = "panelshelf-collection.csv";
+  const url =
+    URL.createObjectURL(blob);
+
+  link.href = url;
+  link.download =
+    "panelshelf-collection.csv";
+
   link.click();
 
-  URL.revokeObjectURL(link.href);
+  URL.revokeObjectURL(url);
+}
+
+/* =========================================
+   NAVIGATION
+========================================= */
+
+function updatePageTitle(viewId) {
+  const titleMap = {
+    "home-view": "Dashboard",
+    "add-view": "Add Comic",
+    "collection-view": "My Collection",
+  };
+
+  const pageTitle =
+    $("#page-title");
+
+  if (pageTitle) {
+    pageTitle.textContent =
+      titleMap[viewId] ||
+      "Dashboard";
+  }
+}
+
+function updateSidebar(viewId) {
+  $$("[data-view]").forEach((button) => {
+    const buttonView =
+      button.dataset.view;
+
+    if (
+      buttonView &&
+      !button.dataset.statusFilter &&
+      buttonView === viewId
+    ) {
+      button.classList.add("active");
+    } else if (
+      buttonView &&
+      !button.dataset.statusFilter &&
+      buttonView !== viewId
+    ) {
+      button.classList.remove("active");
+    }
+  });
 }
 
 function showView(viewId) {
   $$(".view").forEach((view) => {
-    view.hidden = view.id !== viewId;
+    view.hidden =
+      view.id !== viewId;
   });
 
-  const radio = document.querySelector(
-    `.comic-radio-group input[value="${viewId}"]`
-  );
+  const radio =
+    document.querySelector(
+      `.comic-radio-group input[value="${viewId}"]`
+    );
 
   if (radio) {
     radio.checked = true;
   }
+
+  updatePageTitle(viewId);
+  updateSidebar(viewId);
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+
+  closeMobileMenu();
 }
 
-$$("[data-view]").forEach((button) => {
-  button.addEventListener("click", () => showView(button.dataset.view));
+$$("[data-view]").forEach(
+  (button) => {
+    button.addEventListener(
+      "click",
+      () => {
+        const viewId =
+          button.dataset.view;
+
+        if (
+          button.dataset.statusFilter
+        ) {
+          showView(viewId);
+
+          const filter =
+            $("#collection-filter");
+
+          if (filter) {
+            filter.value =
+              button.dataset.statusFilter;
+          }
+
+          renderComics();
+          return;
+        }
+
+        showView(viewId);
+      }
+    );
+  }
+);
+
+$$(
+  '.comic-radio-group input[name="main-nav"]'
+).forEach((radio) => {
+  radio.addEventListener(
+    "change",
+    () => showView(radio.value)
+  );
 });
 
-$$('.comic-radio-group input[name="main-nav"]').forEach((radio) => {
-  radio.addEventListener("change", () => showView(radio.value));
-});
+/* =========================================
+   COLLECTION SEARCH
+========================================= */
 
 [
   "#collection-search",
@@ -678,283 +1480,771 @@ $$('.comic-radio-group input[name="main-nav"]').forEach((radio) => {
   "#collection-filter",
   "#collection-sort",
 ].forEach((selector) => {
-  $(selector).addEventListener("input", renderComics);
-  $(selector).addEventListener("change", renderComics);
+  const element = $(selector);
+
+  if (!element) {
+    return;
+  }
+
+  element.addEventListener(
+    "input",
+    renderComics
+  );
+
+  element.addEventListener(
+    "change",
+    renderComics
+  );
 });
 
-$("#export-button").addEventListener("click", exportCsv);
+/* =========================================
+   GLOBAL DASHBOARD SEARCH
+========================================= */
 
-$("#close-edit-button").addEventListener("click", () => {
-  $("#edit-dialog").close();
-});
+const dashboardSearch =
+  $("#dashboard-search");
 
-// Helper function to force an asynchronous pause so the CSS engine handles transitions correctly
+if (dashboardSearch) {
+  dashboardSearch.addEventListener(
+    "input",
+    (event) => {
+      const value =
+        event.target.value.trim();
+
+      if (!value) {
+        return;
+      }
+
+      showView("collection-view");
+
+      const collectionSearch =
+        $("#collection-search");
+
+      if (collectionSearch) {
+        collectionSearch.value =
+          value;
+      }
+
+      renderComics();
+    }
+  );
+
+  dashboardSearch.addEventListener(
+    "keydown",
+    (event) => {
+      if (event.key === "Enter") {
+        event.preventDefault();
+
+        showView("collection-view");
+
+        const collectionSearch =
+          $("#collection-search");
+
+        if (collectionSearch) {
+          collectionSearch.value =
+            event.target.value.trim();
+        }
+
+        renderComics();
+      }
+    }
+  );
+}
+
+const exportButton =
+  $("#export-button");
+
+if (exportButton) {
+  exportButton.addEventListener(
+    "click",
+    exportCsv
+  );
+}
+
+const closeEditButton =
+  $("#close-edit-button");
+
+if (closeEditButton) {
+  closeEditButton.addEventListener(
+    "click",
+    () => $("#edit-dialog").close()
+  );
+}
+
+/* =========================================
+   MOBILE SIDEBAR
+========================================= */
+
+const mobileMenuButton =
+  $("#mobile-menu-button");
+
+const sidebar =
+  $("#sidebar");
+
+const sidebarOverlay =
+  $("#sidebar-overlay");
+
+function openMobileMenu() {
+  if (!sidebar || !sidebarOverlay || !mobileMenuButton) {
+    return;
+  }
+
+  sidebar.classList.add("is-open");
+  sidebarOverlay.hidden = false;
+
+  mobileMenuButton.setAttribute(
+    "aria-expanded",
+    "true"
+  );
+}
+
+function closeMobileMenu() {
+  if (!sidebar || !sidebarOverlay || !mobileMenuButton) {
+    return;
+  }
+
+  sidebar.classList.remove("is-open");
+  sidebarOverlay.hidden = true;
+
+  mobileMenuButton.setAttribute(
+    "aria-expanded",
+    "false"
+  );
+}
+
+if (mobileMenuButton) {
+  mobileMenuButton.addEventListener(
+    "click",
+    () => {
+      if (
+        sidebar &&
+        sidebar.classList.contains("is-open")
+      ) {
+        closeMobileMenu();
+      } else {
+        openMobileMenu();
+      }
+    }
+  );
+}
+
+if (sidebarOverlay) {
+  sidebarOverlay.addEventListener(
+    "click",
+    closeMobileMenu
+  );
+}
+
+/* =========================================
+   ACCOUNT / SETTINGS SIDEBAR
+========================================= */
+
+$$("[data-scroll-target]").forEach(
+  (button) => {
+    button.addEventListener(
+      "click",
+      () => {
+        const target = $(
+          `#${button.dataset.scrollTarget}`
+        );
+
+        if (target) {
+          target.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }
+
+        closeMobileMenu();
+      }
+    );
+  }
+);
+
+/* =========================================
+   LOADING SCREEN
+========================================= */
+
 function delay(ms) {
-  return new Promise((resolve) => setTimeout(resolve, ms));
+  return new Promise(
+    (resolve) =>
+      setTimeout(resolve, ms)
+  );
 }
 
 async function runLoaderSequence() {
-  const screen = $("#loading-screen");
+  const screen =
+    $("#loading-screen");
 
   if (!screen) {
-    console.error("PanelShelf: #loading-screen was not found.");
+    console.error(
+      "PanelShelf: #loading-screen was not found."
+    );
+
     return false;
   }
 
-  // Make sure the loader starts from a clean state
   screen.hidden = false;
   screen.classList.remove("is-active");
 
-  // Force the browser to render the initial state
   void screen.offsetWidth;
 
-  // Activate the transition/animation
   screen.classList.add("is-active");
 
-  // Keep it visible long enough for the animation to play
   await delay(1400);
 
   return true;
 }
 
 async function hideLoaderSequence() {
-  const screen = $("#loading-screen");
+  const screen =
+    $("#loading-screen");
 
   if (!screen) {
     return;
   }
 
-  // Start the fade-out
   screen.classList.remove("is-active");
 
-  // Give the CSS transition time to finish
   await delay(250);
 
-  // Completely remove it from the page flow
   screen.hidden = true;
 }
 
 async function openAuthWithLoader() {
-  const screen = $("#loading-screen");
+  const screen =
+    $("#loading-screen");
 
   if (!screen) {
-    console.error("PanelShelf: #loading-screen was not found.");
+    console.error(
+      "PanelShelf: #loading-screen was not found."
+    );
+
     return;
   }
 
-  // Play the racing transition first
   await runLoaderSequence();
 
-  // Redirect only after the transition has finished
-  window.location.href = "signin.html";
+  window.location.href =
+    "signin.html";
 }
 
-$("#open-auth-button").addEventListener(
-  "click",
-  openAuthWithLoader
-);
+const openAuthButton =
+  $("#open-auth-button");
 
-$("#close-auth-button").addEventListener("click", () => {
-  $("#auth-dialog").close();
-});
+if (openAuthButton) {
+  openAuthButton.addEventListener(
+    "click",
+    openAuthWithLoader
+  );
+}
 
-$("#close-reset-password-button").addEventListener("click", () => {
-  $("#reset-password-dialog").close();
-});
+/* =========================================
+   AUTH DIALOG
+========================================= */
 
-$("#toggle-password-button").addEventListener("click", () => {
-  const password = $("#auth-password");
-  const showing = password.type === "text";
+const closeAuthButton =
+  $("#close-auth-button");
 
-  password.type = showing ? "password" : "text";
+if (closeAuthButton) {
+  closeAuthButton.addEventListener(
+    "click",
+    () => $("#auth-dialog").close()
+  );
+}
 
-  $("#toggle-password-button").textContent = showing
-    ? "Show"
-    : "Hide";
-});
+const closeResetPasswordButton =
+  $("#close-reset-password-button");
 
-$("#toggle-new-password-button").addEventListener("click", () => {
-  const password = $("#new-password");
-  const showing = password.type === "text";
+if (closeResetPasswordButton) {
+  closeResetPasswordButton.addEventListener(
+    "click",
+    () =>
+      $("#reset-password-dialog").close()
+  );
+}
 
-  password.type = showing ? "password" : "text";
+const togglePasswordButton =
+  $("#toggle-password-button");
 
-  $("#toggle-new-password-button").textContent = showing
-    ? "Show"
-    : "Hide";
-});
+if (togglePasswordButton) {
+  togglePasswordButton.addEventListener(
+    "click",
+    () => {
+      const password =
+        $("#auth-password");
 
-// SUBMIT HANDLE: Correctly spaces the asynchronous timeline out so the loader runs first!
-$("#auth-form").addEventListener("submit", async (event) => {
-  event.preventDefault();
+      const showing =
+        password.type === "text";
 
-  const dialog = $("#auth-dialog");
-  const email = $("#auth-email").value;
-  const password = $("#auth-password").value;
+      password.type =
+        showing
+          ? "password"
+          : "text";
 
-  dialog.close();
+      togglePasswordButton.textContent =
+        showing
+          ? "Show"
+          : "Hide";
+    }
+  );
+}
 
-  await runLoaderSequence();
+const toggleNewPasswordButton =
+  $("#toggle-new-password-button");
 
-  const { error } =
-    await supabaseClient.auth.signInWithPassword({
-      email,
-      password,
-    });
+if (toggleNewPasswordButton) {
+  toggleNewPasswordButton.addEventListener(
+    "click",
+    () => {
+      const password =
+        $("#new-password");
 
-  await hideLoaderSequence();
+      const showing =
+        password.type === "text";
 
-  if (error) {
-    dialog.showModal();
-    $("#auth-message").textContent = error.message;
+      password.type =
+        showing
+          ? "password"
+          : "text";
+
+      toggleNewPasswordButton.textContent =
+        showing
+          ? "Show"
+          : "Hide";
+    }
+  );
+}
+
+/* =========================================
+   SIGN IN
+========================================= */
+
+const authForm =
+  $("#auth-form");
+
+if (authForm) {
+  authForm.addEventListener(
+    "submit",
+    async (event) => {
+      event.preventDefault();
+
+      const dialog =
+        $("#auth-dialog");
+
+      const email =
+        $("#auth-email").value;
+
+      const password =
+        $("#auth-password").value;
+
+      dialog.close();
+
+      await runLoaderSequence();
+
+      const { error } =
+        await supabaseClient.auth
+          .signInWithPassword({
+            email,
+            password,
+          });
+
+      await hideLoaderSequence();
+
+      if (error) {
+        dialog.showModal();
+
+        $("#auth-message").textContent =
+          error.message;
+
+        return;
+      }
+
+      $("#auth-message").textContent =
+        "";
+    }
+  );
+}
+
+/* =========================================
+   CREATE ACCOUNT
+========================================= */
+
+const signUpButton =
+  $("#sign-up-button");
+
+if (signUpButton) {
+  signUpButton.addEventListener(
+    "click",
+    async () => {
+      const { error } =
+        await supabaseClient.auth
+          .signUp({
+            email:
+              $("#auth-email").value,
+
+            password:
+              $("#auth-password").value,
+
+            options: {
+              emailRedirectTo:
+                redirectUrl(),
+            },
+          });
+
+      $("#auth-message").textContent =
+        error
+          ? error.message
+          : "Check your email to confirm your new account.";
+    }
+  );
+}
+
+/* =========================================
+   RESEND CONFIRMATION
+========================================= */
+
+const resendConfirmationButton =
+  $("#resend-confirmation-button");
+
+if (resendConfirmationButton) {
+  resendConfirmationButton.addEventListener(
+    "click",
+    async () => {
+      const { error } =
+        await supabaseClient.auth
+          .resend({
+            type: "signup",
+
+            email:
+              $("#auth-email").value,
+
+            options: {
+              emailRedirectTo:
+                redirectUrl(),
+            },
+          });
+
+      $("#auth-message").textContent =
+        error
+          ? error.message
+          : "Confirmation email sent.";
+    }
+  );
+}
+
+/* =========================================
+   FORGOT PASSWORD
+========================================= */
+
+const forgotPasswordButton =
+  $("#forgot-password-button");
+
+if (forgotPasswordButton) {
+  forgotPasswordButton.addEventListener(
+    "click",
+    async () => {
+      const email =
+        $("#auth-email")
+          .value
+          .trim();
+
+      if (!email) {
+        $("#auth-message").textContent =
+          "Enter your email address first, then select Reset password.";
+
+        $("#auth-email").focus();
+
+        return;
+      }
+
+      const { error } =
+        await supabaseClient.auth
+          .resetPasswordForEmail(
+            email,
+            {
+              redirectTo:
+                redirectUrl(),
+            }
+          );
+
+      $("#auth-message").textContent =
+        error
+          ? error.message
+          : "Check your email for a password reset link.";
+    }
+  );
+}
+
+/* =========================================
+   PASSWORD RESET
+========================================= */
+
+const resetPasswordForm =
+  $("#reset-password-form");
+
+if (resetPasswordForm) {
+  resetPasswordForm.addEventListener(
+    "submit",
+    async (event) => {
+      event.preventDefault();
+
+      const password =
+        $("#new-password").value;
+
+      const confirmation =
+        $("#confirm-new-password").value;
+
+      if (password !== confirmation) {
+        $("#reset-password-message")
+          .textContent =
+          "The passwords do not match.";
+
+        return;
+      }
+
+      const { error } =
+        await supabaseClient.auth
+          .updateUser({
+            password,
+          });
+
+      $("#reset-password-message")
+        .textContent =
+        error
+          ? error.message
+          : "Password updated. You can now sign in.";
+
+      if (!error) {
+        resetPasswordForm.reset();
+
+        setTimeout(
+          () =>
+            $("#reset-password-dialog")
+              .close(),
+          1200
+        );
+      }
+    }
+  );
+}
+
+/* =========================================
+   SIGN OUT
+========================================= */
+
+async function signOut() {
+  await supabaseClient.auth.signOut();
+}
+
+const signOutButton =
+  $("#sign-out-button");
+
+if (signOutButton) {
+  signOutButton.addEventListener(
+    "click",
+    signOut
+  );
+}
+
+const sidebarSignOut =
+  $("#sidebar-sign-out");
+
+if (sidebarSignOut) {
+  sidebarSignOut.addEventListener(
+    "click",
+    signOut
+  );
+}
+
+/* =========================================
+   ACCOUNT DISPLAY
+========================================= */
+
+function updateAccountDisplay() {
+  const currentUser =
+    $("#current-user");
+
+  const sidebarName =
+    $("#sidebar-user-name");
+
+  const sidebarEmail =
+    $("#sidebar-user-email");
+
+  const topbarStatus =
+    $("#topbar-user-status");
+
+  if (!user) {
+    if (currentUser) {
+      currentUser.textContent =
+        "Not signed in";
+    }
+
+    if (sidebarName) {
+      sidebarName.textContent =
+        "Guest";
+    }
+
+    if (sidebarEmail) {
+      sidebarEmail.textContent =
+        "Not signed in";
+    }
+
+    if (topbarStatus) {
+      topbarStatus.textContent =
+        "Guest collector";
+    }
+
+    if (openAuthButton) {
+      openAuthButton.hidden =
+        false;
+    }
+
+    if (signOutButton) {
+      signOutButton.hidden =
+        true;
+    }
+
+    if (sidebarSignOut) {
+      sidebarSignOut.hidden =
+        true;
+    }
+
     return;
   }
 
-  $("#auth-message").textContent = "";
-});
+  const email =
+    user.email || "Collector";
 
+  const displayName =
+    user.user_metadata?.display_name ||
+    email.split("@")[0];
 
-$("#sign-up-button").addEventListener("click", async () => {
-  const { error } = await supabaseClient.auth.signUp({
-    email: $("#auth-email").value,
-    password: $("#auth-password").value,
-    options: {
-      emailRedirectTo: redirectUrl(),
-    },
-  });
-
-  $("#auth-message").textContent = error
-    ? error.message
-    : "Check your email to confirm your new account.";
-});
-
-$("#resend-confirmation-button").addEventListener("click", async () => {
-  const { error } = await supabaseClient.auth.resend({
-    type: "signup",
-    email: $("#auth-email").value,
-    options: {
-      emailRedirectTo: redirectUrl(),
-    },
-  });
-
-  $("#auth-message").textContent = error
-    ? error.message
-    : "Confirmation email sent.";
-});
-
-$("#forgot-password-button").addEventListener("click", async () => {
-  const email = $("#auth-email").value.trim();
-
-  if (!email) {
-    $("#auth-message").textContent =
-      "Enter your email address first, then select Reset password.";
-
-    $("#auth-email").focus();
-    return;
+  if (currentUser) {
+    currentUser.textContent =
+      email;
   }
 
-  const { error } =
-    await supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: redirectUrl(),
-    });
-
-  $("#auth-message").textContent = error
-    ? error.message
-    : "Check your email for a password reset link.";
-});
-
-$("#reset-password-form").addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const password = $("#new-password").value;
-  const confirmation = $("#confirm-new-password").value;
-
-  if (password !== confirmation) {
-    $("#reset-password-message").textContent =
-      "The passwords do not match.";
-
-    return;
+  if (sidebarName) {
+    sidebarName.textContent =
+      displayName;
   }
 
-  const { error } = await supabaseClient.auth.updateUser({
-    password,
-  });
-
-  $("#reset-password-message").textContent = error
-    ? error.message
-    : "Password updated. You can now sign in.";
-
-  if (!error) {
-    $("#reset-password-form").reset();
-
-    setTimeout(() => {
-      $("#reset-password-dialog").close();
-    }, 1200);
+  if (sidebarEmail) {
+    sidebarEmail.textContent =
+      email;
   }
-});
 
-$("#sign-out-button").addEventListener("click", () => {
-  supabaseClient.auth.signOut();
-});
+  if (topbarStatus) {
+    topbarStatus.textContent =
+      "Signed in";
+  }
+
+  if (openAuthButton) {
+    openAuthButton.hidden =
+      true;
+  }
+
+  if (signOutButton) {
+    signOutButton.hidden =
+      false;
+  }
+
+  if (sidebarSignOut) {
+    sidebarSignOut.hidden =
+      false;
+  }
+}
+
+/* =========================================
+   START PANEL SHELF
+========================================= */
 
 async function startPanelShelf() {
   const {
-    data: { session },
-  } = await supabaseClient.auth.getSession();
+    data: {
+      session,
+    },
+  } =
+    await supabaseClient.auth
+      .getSession();
 
-  user = session?.user || null;
+  user =
+    session?.user || null;
 
-  $("#current-user").textContent = user?.email || "Not signed in";
-  $("#open-auth-button").hidden = Boolean(user);
-  $("#sign-out-button").hidden = !user;
+  updateAccountDisplay();
 
   await loadComics();
 
-  const { data } = await supabaseClient.rpc("get_member_count");
+  const { data } =
+    await supabaseClient.rpc(
+      "get_member_count"
+    );
 
   if (data !== null) {
-    $("#member-count").textContent = data;
+    const memberCount =
+      $("#member-count");
+
+    if (memberCount) {
+      memberCount.textContent =
+        data;
+    }
   }
 
-  supabaseClient.auth.onAuthStateChange((event, session) => {
-    user = session?.user || null;
+  supabaseClient.auth.onAuthStateChange(
+    (event, session) => {
+      user =
+        session?.user || null;
 
-    $("#current-user").textContent = user?.email || "Not signed in";
-    $("#open-auth-button").hidden = Boolean(user);
-    $("#sign-out-button").hidden = !user;
+      updateAccountDisplay();
 
-    if (event === "PASSWORD_RECOVERY") {
-      $("#reset-password-dialog").showModal();
+      if (
+        event ===
+        "PASSWORD_RECOVERY"
+      ) {
+        $("#reset-password-dialog")
+          .showModal();
+      }
+
+      loadComics();
     }
-
-    loadComics();
-  });
+  );
 }
 
+/* =========================================
+   DELETE ACCOUNT
+========================================= */
+
 (() => {
-  const deleteAccountButton = document.querySelector(
-    "#delete-account-button"
-  );
+  const deleteAccountButton =
+    document.querySelector(
+      "#delete-account-button"
+    );
 
-  const deleteAccountDialog = document.querySelector(
-    "#delete-account-dialog"
-  );
+  const deleteAccountDialog =
+    document.querySelector(
+      "#delete-account-dialog"
+    );
 
-  const deleteAccountForm = document.querySelector(
-    "#delete-account-form"
-  );
+  const deleteAccountForm =
+    document.querySelector(
+      "#delete-account-form"
+    );
 
-  const deleteAccountConfirmation = document.querySelector(
-    "#delete-account-confirmation"
-  );
+  const deleteAccountConfirmation =
+    document.querySelector(
+      "#delete-account-confirmation"
+    );
 
-  const deleteAccountMessage = document.querySelector(
-    "#delete-account-message"
-  );
+  const deleteAccountMessage =
+    document.querySelector(
+      "#delete-account-message"
+    );
 
-  const cancelDeleteAccountButton = document.querySelector(
-    "#cancel-delete-account-button"
-  );
+  const cancelDeleteAccountButton =
+    document.querySelector(
+      "#cancel-delete-account-button"
+    );
 
   if (
     !deleteAccountButton ||
@@ -967,85 +2257,138 @@ async function startPanelShelf() {
     return;
   }
 
-  function updateDeleteAccountButton(session) {
-    deleteAccountButton.hidden = !session?.user;
+  function updateDeleteAccountButton(
+    session
+  ) {
+    deleteAccountButton.hidden =
+      !session?.user;
   }
 
-  deleteAccountButton.addEventListener("click", () => {
-    deleteAccountMessage.textContent = "";
-    deleteAccountConfirmation.value = "";
-    deleteAccountDialog.showModal();
-    deleteAccountConfirmation.focus();
-  });
-
-  cancelDeleteAccountButton.addEventListener("click", () => {
-    deleteAccountDialog.close();
-  });
-
-  deleteAccountDialog.addEventListener("close", () => {
-    deleteAccountForm.reset();
-    deleteAccountMessage.textContent = "";
-  });
-
-  deleteAccountForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
-
-    if (deleteAccountConfirmation.value.trim() !== "DELETE") {
+  deleteAccountButton.addEventListener(
+    "click",
+    () => {
       deleteAccountMessage.textContent =
-        "Type DELETE exactly to continue.";
+        "";
+
+      deleteAccountConfirmation.value =
+        "";
+
+      deleteAccountDialog.showModal();
 
       deleteAccountConfirmation.focus();
-      return;
     }
+  );
 
-    const submitButton = deleteAccountForm.querySelector(
-      'button[type="submit"]'
+  cancelDeleteAccountButton
+    .addEventListener(
+      "click",
+      () =>
+        deleteAccountDialog.close()
     );
 
-    submitButton.disabled = true;
-    deleteAccountMessage.textContent = "Deleting your account...";
+  deleteAccountDialog.addEventListener(
+    "close",
+    () => {
+      deleteAccountForm.reset();
+      deleteAccountMessage.textContent =
+        "";
+    }
+  );
 
-    try {
-      const { error } = await supabaseClient.functions.invoke(
-        "delete-account",
-        {
-          body: {
-            confirmation: "DELETE",
-          },
-        }
-      );
+  deleteAccountForm.addEventListener(
+    "submit",
+    async (event) => {
+      event.preventDefault();
 
-      if (error) {
-        throw error;
+      if (
+        deleteAccountConfirmation
+          .value
+          .trim() !== "DELETE"
+      ) {
+        deleteAccountMessage.textContent =
+          "Type DELETE exactly to continue.";
+
+        deleteAccountConfirmation.focus();
+
+        return;
       }
 
-      deleteAccountMessage.textContent =
-        "Your account has been permanently deleted.";
+      const submitButton =
+        deleteAccountForm.querySelector(
+          'button[type="submit"]'
+        );
 
-      await supabaseClient.auth.signOut({
-        scope: "local",
-      });
-
-      window.setTimeout(() => {
-        window.location.assign("index.html");
-      }, 1200);
-    } catch (error) {
-      console.error("Account deletion failed:", error);
+      submitButton.disabled = true;
 
       deleteAccountMessage.textContent =
-        "PanelShelf could not delete your account. Please try again.";
+        "Deleting your account...";
 
-      submitButton.disabled = false;
+      try {
+        const { error } =
+          await supabaseClient.functions
+            .invoke(
+              "delete-account",
+              {
+                body: {
+                  confirmation:
+                    "DELETE",
+                },
+              }
+            );
+
+        if (error) {
+          throw error;
+        }
+
+        deleteAccountMessage.textContent =
+          "Your account has been permanently deleted.";
+
+        await supabaseClient.auth.signOut(
+          {
+            scope: "local",
+          }
+        );
+
+        window.setTimeout(
+          () =>
+            window.location.assign(
+              "index.html"
+            ),
+          1200
+        );
+      } catch (error) {
+        console.error(
+          "Account deletion failed:",
+          error
+        );
+
+        deleteAccountMessage.textContent =
+          "PanelShelf could not delete your account. Please try again.";
+
+        submitButton.disabled = false;
+      }
     }
-  });
+  );
 
-  supabaseClient.auth.getUser().then(({ data }) => {
-    updateDeleteAccountButton(data);
-  });
+  supabaseClient.auth
+    .getUser()
+    .then(({ data }) => {
+      updateDeleteAccountButton(
+        data
+      );
+    });
 
-  supabaseClient.auth.onAuthStateChange((_event, session) => {
-    updateDeleteAccountButton(session);
-  });
+  supabaseClient.auth.onAuthStateChange(
+    (_event, session) => {
+      updateDeleteAccountButton(
+        session
+      );
+    }
+  );
 })();
+
+/* =========================================
+   INITIALIZE
+========================================= */
 
 startPanelShelf();

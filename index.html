@@ -1,223 +1,800 @@
+
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta
-    name="description"
-    content="PanelShelf tracks comic issues, graphic novels, and manga."
-  >
+
+<meta
+name="description"
+content="PanelShelf tracks comic issues, graphic novels, and manga."
+
+>
+
   <title>PanelShelf</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
   <link
     href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Press+Start+2P&display=swap"
     rel="stylesheet"
   >
+
   <link rel="stylesheet" href="styles.css">
 </head>
 
 <body>
-  <header>
-    <div class="header-content">
+
+  <!-- Mobile menu button -->
+
+<button
+id="mobile-menu-button"
+class="mobile-menu-button"
+type="button"
+aria-label="Open navigation menu"
+aria-expanded="false"
+
+>
+
+
+<span></span>
+
+
+
+<span></span>
+<span></span>
+
+
+  </button>
+
+  <!-- Mobile sidebar overlay -->
+
+  <div id="sidebar-overlay" class="sidebar-overlay" hidden></div>
+
+  <!-- =========================================
+       SIDEBAR
+       ========================================= -->
+
+  <aside id="sidebar" class="sidebar">
+
+
+<div class="sidebar-brand">
+  <div class="brand-mark">PS</div>
+
+  <div>
+    <strong>PanelShelf</strong>
+    <span>COMIC COLLECTION</span>
+  </div>
+</div>
+
+<div class="sidebar-section-label">
+  MAIN MENU
+</div>
+
+<nav class="sidebar-nav" aria-label="Main navigation">
+
+  <button
+    class="sidebar-nav-button active"
+    type="button"
+    data-view="home-view"
+  >
+    <span class="nav-icon">⌂</span>
+    <span>Dashboard</span>
+  </button>
+
+  <button
+    class="sidebar-nav-button"
+    type="button"
+    data-view="collection-view"
+  >
+    <span class="nav-icon">▤</span>
+    <span>My Collection</span>
+  </button>
+
+  <button
+    class="sidebar-nav-button"
+    type="button"
+    data-view="add-view"
+  >
+    <span class="nav-icon">＋</span>
+    <span>Add Comic</span>
+  </button>
+
+  <button
+    class="sidebar-nav-button"
+    type="button"
+    data-view="collection-view"
+    data-status-filter="wishlist"
+  >
+    <span class="nav-icon">★</span>
+    <span>Wishlist</span>
+  </button>
+
+  <button
+    class="sidebar-nav-button"
+    type="button"
+    data-view="collection-view"
+    data-status-filter="reading"
+  >
+    <span class="nav-icon">▶</span>
+    <span>Continue Reading</span>
+  </button>
+
+</nav>
+
+<div class="sidebar-divider"></div>
+
+<div class="sidebar-section-label">
+  ACCOUNT
+</div>
+
+<nav class="sidebar-nav">
+
+  <button
+    class="sidebar-nav-button"
+    type="button"
+    data-scroll-target="account-panel"
+  >
+    <span class="nav-icon">●</span>
+    <span>Account</span>
+  </button>
+
+  <button
+    class="sidebar-nav-button"
+    type="button"
+    data-scroll-target="settings-panel"
+  >
+    <span class="nav-icon">⚙</span>
+    <span>Settings</span>
+  </button>
+
+</nav>
+
+<div class="sidebar-spacer"></div>
+
+<div class="sidebar-account" id="account-panel">
+
+  <div class="sidebar-avatar">
+    PS
+  </div>
+
+  <div class="sidebar-account-info">
+    <strong id="sidebar-user-name">Guest</strong>
+    <span id="sidebar-user-email">Not signed in</span>
+  </div>
+
+</div>
+
+<button
+  id="sidebar-sign-out"
+  class="sidebar-sign-out"
+  type="button"
+  hidden
+>
+  <span>↪</span>
+  Sign Out
+</button>
+
+<div id="settings-panel" class="sidebar-settings">
+  <a href="privacy.html">Privacy</a>
+  <a href="mailto:leslydtech@gmail.com">Support</a>
+</div>
+
+
+  </aside>
+
+  <!-- =========================================
+       MAIN APPLICATION
+       ========================================= -->
+
+  <div class="app-shell">
+
+
+<header class="topbar">
+
+  <div class="topbar-left">
+
+    <div class="mobile-brand">
+      <span>PS</span>
+      PanelShelf
+    </div>
+
+    <div class="topbar-title">
+      <span class="topbar-kicker">YOUR COMIC LIBRARY</span>
+      <strong id="page-title">Dashboard</strong>
+    </div>
+
+  </div>
+
+  <div class="topbar-actions">
+
+    <label class="global-search">
+
+      <span aria-hidden="true">⌕</span>
+
+      <input
+        id="dashboard-search"
+        type="search"
+        placeholder="Search your collection..."
+        autocomplete="off"
+        aria-label="Search your collection"
+      >
+
+    </label>
+
+    <div class="topbar-user">
+
+      <div class="topbar-avatar">
+        PS
+      </div>
+
       <div>
-        <h1>PanelShelf</h1>
-        <p>Comics, graphic novels, and manga in one place.</p>
+        <strong id="current-user">Not signed in</strong>
+        <span id="topbar-user-status">Guest collector</span>
       </div>
 
-      <div class="account-controls">
-        <p id="current-user" aria-live="polite">Not signed in</p>
-        <button id="open-auth-button" type="button">Sign in</button>
-        <button id="sign-out-button" type="button" hidden>Sign out</button>
-      </div>
     </div>
 
-    <div class="comic-radio-group" role="radiogroup" aria-label="Main navigation">
-      <input type="radio" id="nav-home" name="main-nav" value="home-view" checked>
-      <label for="nav-home">Home</label>
+    <button
+      id="open-auth-button"
+      class="topbar-auth-button"
+      type="button"
+    >
+      Sign in
+    </button>
 
-      <input type="radio" id="nav-add" name="main-nav" value="add-view">
-      <label for="nav-add">Add item</label>
+    <button
+      id="sign-out-button"
+      class="topbar-auth-button sign-out-top"
+      type="button"
+      hidden
+    >
+      Sign out
+    </button>
 
-      <input type="radio" id="nav-collection" name="main-nav" value="collection-view">
-      <label for="nav-collection">Collection</label>
+  </div>
 
-      <div class="comic-glider"></div>
-    </div>
-  </header>
+</header>
 
-  <main>
-    <section id="home-view" class="view" aria-labelledby="home-heading">
-      <div class="home-hero">
-        <div>
-          <p class="eyebrow">Collection tracker</p>
-          <h2 id="home-heading">Your shelf, your story.</h2>
-          <p class="home-copy">
-            Keep track of comic issues, graphic novels, manga, and the stories
-            you want to read next.
-          </p>
-          <button class="view-link-button" data-view="add-view" type="button">
-            Add an item
-          </button>
-        </div>
 
-        <div class="member-stat">
-          <span>PanelShelf members</span>
-          <strong id="member-count">...</strong>
-          <span>confirmed collectors</span>
-        </div>
+<!-- =========================================
+     HIDDEN NAVIGATION STATE
+     ========================================= -->
+
+<div class="comic-radio-group" aria-hidden="true">
+
+  <input
+    type="radio"
+    id="nav-home"
+    name="main-nav"
+    value="home-view"
+    checked
+  >
+
+  <input
+    type="radio"
+    id="nav-add"
+    name="main-nav"
+    value="add-view"
+  >
+
+  <input
+    type="radio"
+    id="nav-collection"
+    name="main-nav"
+    value="collection-view"
+  >
+
+</div>
+
+
+<main class="dashboard-main">
+
+  <!-- =========================================
+       DASHBOARD
+       ========================================= -->
+
+  <section
+    id="home-view"
+    class="view dashboard-view"
+    aria-labelledby="home-heading"
+  >
+
+    <div class="welcome-row">
+
+      <div>
+
+        <p class="eyebrow">
+          COLLECTION DASHBOARD
+        </p>
+
+        <h1 id="home-heading">
+          Your shelf,<br>
+          <span>your story.</span>
+        </h1>
+
+        <p class="welcome-copy">
+          Keep your comics, graphic novels, and manga organized
+          in one place.
+        </p>
+
       </div>
 
-      <div class="home-stats" aria-label="Your collection statistics">
+      <button
+        class="primary-action"
+        data-view="add-view"
+        type="button"
+      >
+        <span>＋</span>
+        Add Comic
+      </button>
+
+    </div>
+
+
+    <!-- Statistics -->
+
+    <div class="dashboard-stats">
+
+      <article class="stat-card stat-total">
+        <span class="stat-icon">▤</span>
         <div>
-          <span>Total items</span>
+          <span>Total Items</span>
           <strong id="total-count">0</strong>
         </div>
+      </article>
+
+      <article class="stat-card stat-owned">
+        <span class="stat-icon">✓</span>
         <div>
           <span>Owned</span>
           <strong id="owned-count">0</strong>
         </div>
+      </article>
+
+      <article class="stat-card stat-reading">
+        <span class="stat-icon">▶</span>
         <div>
           <span>Reading</span>
           <strong id="reading-count">0</strong>
         </div>
+      </article>
+
+      <article class="stat-card stat-wishlist">
+        <span class="stat-icon">★</span>
         <div>
           <span>Wishlist</span>
           <strong id="wishlist-count">0</strong>
         </div>
-      </div>
+      </article>
 
-      <div class="about-founder">
-        <img
-          src="images/founder.jpg"
-          alt="Lesly Davila, founder of PanelShelf"
-        >
+    </div>
+
+
+    <!-- Featured + Continue Reading -->
+
+    <div class="dashboard-feature-grid">
+
+      <article class="featured-panel">
+
+        <div class="panel-label">
+          FEATURED FROM YOUR SHELF
+        </div>
+
+        <div id="featured-comic" class="featured-content">
+
+          <div class="featured-empty">
+            <div class="empty-icon">▤</div>
+
+            <h2>Your shelf is waiting.</h2>
+
+            <p>
+              Add your first comic and it will appear here.
+            </p>
+
+            <button
+              class="small-action"
+              data-view="add-view"
+              type="button"
+            >
+              Add your first comic
+            </button>
+          </div>
+
+        </div>
+
+      </article>
+
+
+      <article class="continue-panel">
+
+        <div class="section-heading">
+
+          <div>
+            <span class="panel-label">
+              PICK UP WHERE YOU LEFT OFF
+            </span>
+
+            <h2>Continue Reading</h2>
+          </div>
+
+          <button
+            class="text-action"
+            type="button"
+            data-view="collection-view"
+            data-status-filter="reading"
+          >
+            View all →
+          </button>
+
+        </div>
+
+        <div id="continue-reading-list" class="mini-comic-list">
+
+          <div class="dashboard-empty">
+            Nothing currently marked as reading.
+          </div>
+
+        </div>
+
+      </article>
+
+    </div>
+
+
+    <!-- Shelf Highlights -->
+
+    <section class="dashboard-section">
+
+      <div class="section-heading">
 
         <div>
-          <p class="eyebrow">Meet the founder</p>
-          <h2>Hi, I am Lesly.</h2>
-          <p>
-            I created PanelShelf because I love comics and wanted a simple,
-            free way to track my collection without paying for another
-            subscription.
-          </p>
-        </div>
-      </div>
-    </section>
+          <span class="panel-label">
+            YOUR LIBRARY
+          </span>
 
-    <section id="add-view" class="view" hidden aria-labelledby="add-heading">
-      <div class="add-layout">
-        <div class="form-area">
-          <h2 id="add-heading">Add an item</h2>
-
-          <form id="comic-form">
-            <label for="item-type">Collection type</label>
-            <select id="item-type">
-              <option value="comic_issue">Comic issue</option>
-              <option value="graphic_novel">Graphic novel</option>
-              <option value="manga">Manga</option>
-            </select>
-
-            <label for="series">Title</label>
-            <input
-              id="series"
-              type="text"
-              required
-              placeholder="e.g. Saga"
-              autocomplete="off"
-            >
-
-            <label for="issue">Issue / volume number</label>
-            <input
-              id="issue"
-              type="number"
-              min="1"
-              placeholder="Optional"
-            >
-
-            <label for="publisher">Publisher</label>
-            <input
-              id="publisher"
-              type="text"
-              placeholder="e.g. Image Comics"
-              autocomplete="off"
-            >
-
-            <label for="notes">Personal notes</label>
-            <textarea
-              id="notes"
-              maxlength="500"
-              placeholder="Optional notes about this item"
-            ></textarea>
-
-            <button id="find-cover-button" type="button">
-              Find cover
-            </button>
-
-            <p id="cover-message" role="status" aria-live="polite"></p>
-
-            <div
-              id="cover-suggestions"
-              aria-label="Suggested comic covers"
-            ></div>
-
-            <input
-              id="cover-upload"
-              class="file-input"
-              type="file"
-              accept="image/png, image/jpeg, image/webp, image/gif"
-            >
-
-            <label
-              for="cover-upload"
-              class="camera-button"
-              title="Upload your own cover"
-            >
-              <span class="camera-icon" aria-hidden="true"></span>
-              <span class="sr-only">Upload your own cover</span>
-            </label>
-
-            <input id="selected-cover-url" type="hidden">
-            <input id="selected-cover-path" type="hidden">
-
-            <label for="status">Status</label>
-            <select id="status">
-              <option value="owned">Owned</option>
-              <option value="wishlist">Wishlist</option>
-              <option value="reading">Reading</option>
-              <option value="read">Read</option>
-            </select>
-
-            <button type="submit">Add to shelf</button>
-          </form>
+          <h2>Shelf Highlights</h2>
         </div>
 
-        <aside class="recent-area" aria-labelledby="recent-heading">
-          <h2 id="recent-heading">Recently added</h2>
-          <p id="recent-empty-message">Sign in to see recent items.</p>
-          <div id="recent-list" class="card-grid"></div>
-        </aside>
+        <button
+          class="text-action"
+          type="button"
+          data-view="collection-view"
+        >
+          View collection →
+        </button>
+
       </div>
+
+      <div id="dashboard-comic-grid" class="dashboard-comic-grid">
+
+        <div class="dashboard-empty">
+          Sign in and add comics to start building your shelf.
+        </div>
+
+      </div>
+
     </section>
 
-    <section
-      id="collection-view"
-      class="view"
-      hidden
-      aria-labelledby="collection-heading"
-    >
-      <h2 id="collection-heading">My collection</h2>
 
-      <div class="collection-controls">
-        <label for="collection-search">Search collection</label>
+    <!-- Recently Added -->
+
+    <section class="dashboard-section">
+
+      <div class="section-heading">
+
+        <div>
+          <span class="panel-label">
+            LATEST ADDITIONS
+          </span>
+
+          <h2>Recently Added</h2>
+        </div>
+
+      </div>
+
+      <div id="dashboard-recent-list" class="dashboard-comic-grid">
+
+        <div class="dashboard-empty">
+          Sign in to see recently added comics.
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- Founder -->
+
+    <section class="founder-panel">
+
+      <img
+        src="images/founder.jpg"
+        alt="Lesly Davila, founder of PanelShelf"
+      >
+
+      <div>
+
+        <span class="panel-label">
+          THE PERSON BEHIND PANELSHELF
+        </span>
+
+        <h2>Built by a collector.</h2>
+
+        <p>
+          Hi, I am Lesly. I created PanelShelf because I love
+          comics and wanted a simple, free way to track my
+          collection without paying for another subscription.
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <div class="member-counter">
+      <span>PanelShelf members</span>
+      <strong id="member-count">...</strong>
+      <span>confirmed collectors</span>
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       ADD COMIC
+       ========================================= -->
+
+  <section
+    id="add-view"
+    class="view"
+    hidden
+    aria-labelledby="add-heading"
+  >
+
+    <div class="page-heading">
+
+      <div>
+        <span class="panel-label">COLLECTION MANAGEMENT</span>
+        <h2 id="add-heading">Add a Comic</h2>
+        <p>
+          Add an issue, graphic novel, or manga to your shelf.
+        </p>
+      </div>
+
+      <button
+        class="secondary-action"
+        type="button"
+        data-view="collection-view"
+      >
+        View Collection
+      </button>
+
+    </div>
+
+    <div class="add-layout">
+
+      <div class="form-area">
+
+        <form id="comic-form">
+
+          <label for="item-type">
+            Collection type
+          </label>
+
+          <select id="item-type">
+            <option value="comic_issue">Comic issue</option>
+            <option value="graphic_novel">Graphic novel</option>
+            <option value="manga">Manga</option>
+          </select>
+
+
+          <label for="series">
+            Title
+          </label>
+
+          <input
+            id="series"
+            type="text"
+            required
+            placeholder="e.g. Saga"
+            autocomplete="off"
+          >
+
+
+          <label for="issue">
+            Issue / volume number
+          </label>
+
+          <input
+            id="issue"
+            type="number"
+            min="1"
+            placeholder="Optional"
+          >
+
+
+          <label for="publisher">
+            Publisher
+          </label>
+
+          <input
+            id="publisher"
+            type="text"
+            placeholder="e.g. Image Comics"
+            autocomplete="off"
+          >
+
+
+          <label for="notes">
+            Personal notes
+          </label>
+
+          <textarea
+            id="notes"
+            maxlength="500"
+            placeholder="Optional notes about this item"
+          ></textarea>
+
+
+          <button
+            id="find-cover-button"
+            class="form-action blue-action"
+            type="button"
+          >
+            Find Cover
+          </button>
+
+          <p
+            id="cover-message"
+            role="status"
+            aria-live="polite"
+          ></p>
+
+          <div
+            id="cover-suggestions"
+            class="cover-suggestion-grid"
+            aria-label="Suggested comic covers"
+          ></div>
+
+
+          <input
+            id="cover-upload"
+            class="file-input"
+            type="file"
+            accept="image/png, image/jpeg, image/webp, image/gif"
+          >
+
+          <label
+            for="cover-upload"
+            class="camera-button"
+            title="Upload your own cover"
+          >
+            <span class="camera-icon" aria-hidden="true"></span>
+            <span>Upload Cover</span>
+          </label>
+
+
+          <input
+            id="selected-cover-url"
+            type="hidden"
+          >
+
+          <input
+            id="selected-cover-path"
+            type="hidden"
+          >
+
+
+          <label for="status">
+            Status
+          </label>
+
+          <select id="status">
+            <option value="owned">Owned</option>
+            <option value="wishlist">Wishlist</option>
+            <option value="reading">Reading</option>
+            <option value="read">Read</option>
+          </select>
+
+
+          <button
+            class="form-action green-action"
+            type="submit"
+          >
+            Add to Shelf
+          </button>
+
+        </form>
+
+      </div>
+
+
+      <aside class="recent-area">
+
+        <div class="section-heading compact-heading">
+
+          <div>
+            <span class="panel-label">YOUR LATEST</span>
+            <h2>Recently Added</h2>
+          </div>
+
+        </div>
+
+        <p id="recent-empty-message">
+          Sign in to see recent items.
+        </p>
+
+        <div
+          id="recent-list"
+          class="card-grid"
+        ></div>
+
+      </aside>
+
+    </div>
+
+  </section>
+
+
+  <!-- =========================================
+       COLLECTION
+       ========================================= -->
+
+  <section
+    id="collection-view"
+    class="view"
+    hidden
+    aria-labelledby="collection-heading"
+  >
+
+    <div class="page-heading">
+
+      <div>
+        <span class="panel-label">YOUR LIBRARY</span>
+        <h2 id="collection-heading">My Collection</h2>
+        <p>
+          Browse, filter, edit, and manage everything on your shelf.
+        </p>
+      </div>
+
+      <button
+        class="primary-action"
+        data-view="add-view"
+        type="button"
+      >
+        <span>＋</span>
+        Add Comic
+      </button>
+
+    </div>
+
+
+    <div class="collection-controls">
+
+      <div class="control-group control-search">
+
+        <label for="collection-search">
+          Search
+        </label>
+
         <input
           id="collection-search"
           type="search"
           placeholder="Search titles or publishers"
         >
 
-        <label for="collection-type-filter">Filter by type</label>
+      </div>
+
+
+      <div class="control-group">
+
+        <label for="collection-type-filter">
+          Type
+        </label>
+
         <select id="collection-type-filter">
           <option value="all">All types</option>
           <option value="comic_issue">Comic issues</option>
@@ -225,7 +802,15 @@
           <option value="manga">Manga</option>
         </select>
 
-        <label for="collection-filter">Filter by status</label>
+      </div>
+
+
+      <div class="control-group">
+
+        <label for="collection-filter">
+          Status
+        </label>
+
         <select id="collection-filter">
           <option value="all">All statuses</option>
           <option value="owned">Owned</option>
@@ -234,263 +819,563 @@
           <option value="read">Read</option>
         </select>
 
-        <label for="collection-sort">Sort by</label>
+      </div>
+
+
+      <div class="control-group">
+
+        <label for="collection-sort">
+          Sort
+        </label>
+
         <select id="collection-sort">
           <option value="newest">Newest added</option>
           <option value="title">Title A-Z</option>
           <option value="number">Issue / volume</option>
         </select>
 
-        <button id="export-button" type="button">Export CSV</button>
       </div>
 
-      <p id="empty-message">Sign in to start building your collection.</p>
-      <p id="filter-empty-message" hidden>No items match that search.</p>
 
-      <div id="comic-list" class="card-grid"></div>
-    </section>
-  </main>
+      <button
+        id="export-button"
+        class="export-button"
+        type="button"
+      >
+        Export CSV
+      </button>
 
-  <div id="loading-screen" class="loading-screen" role="status" aria-live="polite" hidden>
-    <span class="sr-only">Loading the sign in form</span>
-
-    <div class="longfazers" aria-hidden="true">
-      <span></span>
-      <span></span>
-      <span></span>
-      <span></span>
     </div>
 
-    <div class="loader" aria-hidden="true">
-      <span>
-        <span></span>
-        <span></span>
-        <span></span>
-        <span></span>
-      </span>
-      <div class="base">
-        <span></span>
-        <div class="face"></div>
-      </div>
-    </div>
 
-    <p class="loading-label" aria-hidden="true">Loading...</p>
+    <p id="empty-message">
+      Sign in to start building your collection.
+    </p>
+
+    <p
+      id="filter-empty-message"
+      hidden
+    >
+      No items match that search.
+    </p>
+
+
+    <div
+      id="comic-list"
+      class="card-grid collection-grid"
+    ></div>
+
+  </section>
+
+</main>
+
+
+<!-- =========================================
+     LOADING SCREEN
+     ========================================= -->
+
+<div
+  id="loading-screen"
+  class="loading-screen"
+  role="status"
+  aria-live="polite"
+  hidden
+>
+
+  <span class="sr-only">
+    Loading the sign in form
+  </span>
+
+  <div
+    class="longfazers"
+    aria-hidden="true"
+  >
+    <span></span>
+    <span></span>
+    <span></span>
+    <span></span>
   </div>
 
-  <dialog id="auth-dialog" aria-labelledby="auth-heading">
-    <form id="auth-form">
-      <div class="dialog-heading">
-        <h2 id="auth-heading">Account</h2>
-        <button
-          id="close-auth-button"
-          class="icon-button"
-          type="button"
-          aria-label="Close account window"
-        >
-          X
-        </button>
+  <div
+    class="loader"
+    aria-hidden="true"
+  >
+    <span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+    </span>
+
+    <div class="base">
+      <span></span>
+      <div class="face"></div>
+    </div>
+  </div>
+
+  <p
+    class="loading-label"
+    aria-hidden="true"
+  >
+    Loading...
+  </p>
+
+</div>
+
+
+<!-- =========================================
+     AUTH DIALOG
+     ========================================= -->
+
+<dialog
+  id="auth-dialog"
+  aria-labelledby="auth-heading"
+>
+
+  <form id="auth-form">
+
+    <div class="dialog-heading">
+
+      <div>
+        <span class="panel-label">PANELSHELF ACCOUNT</span>
+        <h2 id="auth-heading">Sign In</h2>
       </div>
 
-      <label for="auth-email">Email address</label>
-      <input id="auth-email" type="email" required autocomplete="email">
+      <button
+        id="close-auth-button"
+        class="icon-button"
+        type="button"
+        aria-label="Close account window"
+      >
+        X
+      </button>
 
-      <label for="auth-password">Password</label>
-      <div class="password-field">
-        <input
-          id="auth-password"
-          type="password"
-          minlength="12"
-          required
-          autocomplete="current-password"
-        >
-        <button id="toggle-password-button" type="button">Show</button>
-      </div>
+    </div>
 
-      <p id="auth-message" role="status" aria-live="polite"></p>
 
-      <div class="auth-actions">
-        <button type="submit">Sign in</button>
-        <button id="sign-up-button" type="button">Create account</button>
-        <button
-          id="forgot-password-button"
-          type="button"
-          class="secondary-button"
-        >
-          Reset password
-        </button>
-        <button
-          id="resend-confirmation-button"
-          type="button"
-          class="secondary-button"
-        >
-          Resend confirmation
-        </button>
-      </div>
-    </form>
-  </dialog>
+    <label for="auth-email">
+      Email address
+    </label>
 
-  <dialog id="reset-password-dialog" aria-labelledby="reset-heading">
-    <form id="reset-password-form">
-      <div class="dialog-heading">
-        <h2 id="reset-heading">New password</h2>
-        <button
-          id="close-reset-password-button"
-          class="icon-button"
-          type="button"
-          aria-label="Close password reset window"
-        >
-          X
-        </button>
-      </div>
+    <input
+      id="auth-email"
+      type="email"
+      required
+      autocomplete="email"
+    >
 
-      <label for="new-password">New password</label>
-      <div class="password-field">
-        <input
-          id="new-password"
-          type="password"
-          minlength="12"
-          required
-          autocomplete="new-password"
-        >
-        <button id="toggle-new-password-button" type="button">Show</button>
-      </div>
 
-      <label for="confirm-new-password">Confirm new password</label>
+    <label for="auth-password">
+      Password
+    </label>
+
+    <div class="password-field">
+
       <input
-        id="confirm-new-password"
+        id="auth-password"
+        type="password"
+        minlength="12"
+        required
+        autocomplete="current-password"
+      >
+
+      <button
+        id="toggle-password-button"
+        type="button"
+      >
+        Show
+      </button>
+
+    </div>
+
+
+    <p
+      id="auth-message"
+      role="status"
+      aria-live="polite"
+    ></p>
+
+
+    <div class="auth-actions">
+
+      <button type="submit">
+        Sign In
+      </button>
+
+      <button
+        id="sign-up-button"
+        type="button"
+        class="secondary-button"
+      >
+        Create Account
+      </button>
+
+      <button
+        id="forgot-password-button"
+        type="button"
+        class="secondary-button"
+      >
+        Reset Password
+      </button>
+
+      <button
+        id="resend-confirmation-button"
+        type="button"
+        class="secondary-button"
+      >
+        Resend Confirmation
+      </button>
+
+    </div>
+
+  </form>
+
+</dialog>
+
+
+<!-- =========================================
+     RESET PASSWORD
+     ========================================= -->
+
+<dialog
+  id="reset-password-dialog"
+  aria-labelledby="reset-heading"
+>
+
+  <form id="reset-password-form">
+
+    <div class="dialog-heading">
+
+      <div>
+        <span class="panel-label">ACCOUNT SECURITY</span>
+        <h2 id="reset-heading">New Password</h2>
+      </div>
+
+      <button
+        id="close-reset-password-button"
+        class="icon-button"
+        type="button"
+        aria-label="Close password reset window"
+      >
+        X
+      </button>
+
+    </div>
+
+
+    <label for="new-password">
+      New password
+    </label>
+
+    <div class="password-field">
+
+      <input
+        id="new-password"
         type="password"
         minlength="12"
         required
         autocomplete="new-password"
       >
 
-      <button type="submit">Save new password</button>
-      <p id="reset-password-message" role="status" aria-live="polite"></p>
-    </form>
-  </dialog>
-
-  <dialog id="edit-dialog" aria-labelledby="edit-heading">
-    <form id="edit-form">
-      <div class="dialog-heading">
-        <h2 id="edit-heading">Edit item</h2>
-        <button
-          id="close-edit-button"
-          class="icon-button"
-          type="button"
-          aria-label="Close item editor"
-        >
-          X
-        </button>
-      </div>
-
-      <input id="edit-id" type="hidden">
-      <input id="edit-cover-url" type="hidden">
-      <input id="edit-cover-path" type="hidden">
-
-      <div id="edit-cover-preview" class="edit-cover-preview"></div>
-
-      <label for="edit-item-type">Collection type</label>
-      <select id="edit-item-type">
-        <option value="comic_issue">Comic issue</option>
-        <option value="graphic_novel">Graphic novel</option>
-        <option value="manga">Manga</option>
-      </select>
-
-      <label for="edit-series">Title</label>
-      <input id="edit-series" type="text" required>
-
-      <label for="edit-issue">Issue / volume number</label>
-      <input id="edit-issue" type="number" min="1">
-
-      <label for="edit-publisher">Publisher</label>
-      <input id="edit-publisher" type="text">
-
-      <label for="edit-notes">Personal notes</label>
-      <textarea id="edit-notes" maxlength="500"></textarea>
-
-      <button id="edit-find-cover-button" type="button">
-        Find replacement cover
+      <button
+        id="toggle-new-password-button"
+        type="button"
+      >
+        Show
       </button>
 
-      <p id="edit-cover-message" role="status" aria-live="polite"></p>
+    </div>
 
-      <div
-        id="edit-cover-suggestions"
-        aria-label="Suggested replacement covers"
-      ></div>
+
+    <label for="confirm-new-password">
+      Confirm new password
+    </label>
+
+    <input
+      id="confirm-new-password"
+      type="password"
+      minlength="12"
+      required
+      autocomplete="new-password"
+    >
+
+
+    <button type="submit">
+      Save New Password
+    </button>
+
+    <p
+      id="reset-password-message"
+      role="status"
+      aria-live="polite"
+    ></p>
+
+  </form>
+
+</dialog>
+
+
+<!-- =========================================
+     EDIT DIALOG
+     ========================================= -->
+
+<dialog
+  id="edit-dialog"
+  aria-labelledby="edit-heading"
+>
+
+  <form id="edit-form">
+
+    <div class="dialog-heading">
+
+      <div>
+        <span class="panel-label">COLLECTION MANAGEMENT</span>
+        <h2 id="edit-heading">Edit Item</h2>
+      </div>
+
+      <button
+        id="close-edit-button"
+        class="icon-button"
+        type="button"
+        aria-label="Close item editor"
+      >
+        X
+      </button>
+
+    </div>
+
+
+    <input id="edit-id" type="hidden">
+    <input id="edit-cover-url" type="hidden">
+    <input id="edit-cover-path" type="hidden">
+
+
+    <div
+      id="edit-cover-preview"
+      class="edit-cover-preview"
+    ></div>
+
+
+    <label for="edit-item-type">
+      Collection type
+    </label>
+
+    <select id="edit-item-type">
+      <option value="comic_issue">Comic issue</option>
+      <option value="graphic_novel">Graphic novel</option>
+      <option value="manga">Manga</option>
+    </select>
+
+
+    <label for="edit-series">
+      Title
+    </label>
+
+    <input
+      id="edit-series"
+      type="text"
+      required
+    >
+
+
+    <label for="edit-issue">
+      Issue / volume number
+    </label>
+
+    <input
+      id="edit-issue"
+      type="number"
+      min="1"
+    >
+
+
+    <label for="edit-publisher">
+      Publisher
+    </label>
+
+    <input
+      id="edit-publisher"
+      type="text"
+    >
+
+
+    <label for="edit-notes">
+      Personal notes
+    </label>
+
+    <textarea
+      id="edit-notes"
+      maxlength="500"
+    ></textarea>
+
+
+    <button
+      id="edit-find-cover-button"
+      class="blue-action"
+      type="button"
+    >
+      Find Replacement Cover
+    </button>
+
+    <p
+      id="edit-cover-message"
+      role="status"
+      aria-live="polite"
+    ></p>
+
+
+    <div
+      id="edit-cover-suggestions"
+      class="cover-suggestion-grid"
+      aria-label="Suggested replacement covers"
+    ></div>
+
+
+    <input
+      id="edit-cover-upload"
+      class="file-input"
+      type="file"
+      accept="image/png, image/jpeg, image/webp, image/gif"
+    >
+
+
+    <label
+      for="edit-cover-upload"
+      class="camera-button"
+      title="Upload a replacement cover"
+    >
+      <span
+        class="camera-icon"
+        aria-hidden="true"
+      ></span>
+
+      <span>Upload Replacement</span>
+    </label>
+
+
+    <label for="edit-status">
+      Status
+    </label>
+
+    <select id="edit-status">
+      <option value="owned">Owned</option>
+      <option value="wishlist">Wishlist</option>
+      <option value="reading">Reading</option>
+      <option value="read">Read</option>
+    </select>
+
+
+    <button
+      class="green-action"
+      type="submit"
+    >
+      Save Changes
+    </button>
+
+    <p
+      id="edit-message"
+      role="status"
+      aria-live="polite"
+    ></p>
+
+  </form>
+
+</dialog>
+
+
+<!-- =========================================
+     DELETE ACCOUNT
+     ========================================= -->
+
+<footer class="site-footer">
+
+  <a href="privacy.html">Privacy</a>
+
+  <a href="mailto:leslydtech@gmail.com">
+    Support
+  </a>
+
+  <button
+    type="button"
+    id="delete-account-button"
+    class="delete-account-button"
+    hidden
+  >
+    Delete my account
+  </button>
+
+</footer>
+
+
+<dialog
+  id="delete-account-dialog"
+  class="delete-account-dialog"
+  aria-labelledby="delete-account-title"
+>
+
+  <form id="delete-account-form">
+
+    <h2 id="delete-account-title">
+      Delete Account
+    </h2>
+
+    <p>
+      This permanently deletes your PanelShelf account,
+      collection items, uploaded covers, and saved data.
+      This cannot be undone.
+    </p>
+
+    <label for="delete-account-confirmation">
+      Type DELETE to continue
 
       <input
-        id="edit-cover-upload"
-        class="file-input"
-        type="file"
-        accept="image/png, image/jpeg, image/webp, image/gif"
+        id="delete-account-confirmation"
+        type="text"
+        autocomplete="off"
+        required
       >
+    </label>
 
-      <label
-        for="edit-cover-upload"
-        class="camera-button"
-        title="Upload a replacement cover"
+    <p
+      id="delete-account-message"
+      role="status"
+      aria-live="polite"
+    ></p>
+
+    <div class="delete-account-actions">
+
+      <button
+        type="button"
+        id="cancel-delete-account-button"
       >
-        <span class="camera-icon" aria-hidden="true"></span>
-        <span class="sr-only">Upload a replacement cover</span>
-      </label>
+        Cancel
+      </button>
 
-      <label for="edit-status">Status</label>
-      <select id="edit-status">
-        <option value="owned">Owned</option>
-        <option value="wishlist">Wishlist</option>
-        <option value="reading">Reading</option>
-        <option value="read">Read</option>
-      </select>
+      <button
+        type="submit"
+        class="delete-account-button"
+      >
+        Permanently Delete
+      </button>
 
-      <button type="submit">Save changes</button>
-      <p id="edit-message" role="status" aria-live="polite"></p>
-    </form>
-  </dialog>
+    </div>
+
+  </form>
+
+</dialog>
+
+
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
   <script src="supabase-config.js"></script>
+
   <script src="app.js"></script>
+
   <script src="mobile-auth.js"></script>
+
   <script src="founder-status.js"></script>
 
-  <footer class="site-footer">
-    <a href="privacy.html">Privacy</a>
-    <a href="mailto:leslydtech@gmail.com">Support</a>
-    <button type="button" id="delete-account-button" class="delete-account-button" hidden>
-      Delete my account
-    </button>
-  </footer>
-
-  <dialog id="delete-account-dialog" class="delete-account-dialog" aria-labelledby="delete-account-title">
-    <form id="delete-account-form">
-      <h2 id="delete-account-title">Delete Account</h2>
-
-      <p>
-        This permanently deletes your PanelShelf account, collection items,
-        uploaded covers, and saved data. This cannot be undone.
-      </p>
-
-      <label for="delete-account-confirmation">
-        Type DELETE to continue
-        <input
-          id="delete-account-confirmation"
-          type="text"
-          autocomplete="off"
-          required>
-      </label>
-
-      <p id="delete-account-message" role="status" aria-live="polite"></p>
-
-      <div class="delete-account-actions">
-        <button type="button" id="cancel-delete-account-button">
-          Cancel
-        </button>
-        <button type="submit" class="delete-account-button">
-          Permanently delete
-        </button>
-      </div>
-    </form>
-  </dialog>
 </body>
 </html>
