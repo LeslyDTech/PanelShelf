@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+
 <html lang="en">
 <head>
   <meta charset="UTF-8">
@@ -13,84 +14,106 @@
 
   <main class="signin-container">
 
-    <section class="signin-card" aria-labelledby="signin-title">
 
-      <a href="index.html" class="signin-brand">
-        PanelShelf
-      </a>
+<section class="signin-card" aria-labelledby="signin-title">
 
-      <div class="signin-header">
-        <h1 id="signin-title">Welcome back</h1>
-        <p>Sign in to continue to PanelShelf.</p>
-      </div>
+  <a href="index.html" class="signin-brand">
+    PanelShelf
+  </a>
 
-      <form id="signin-form">
+  <div class="signin-header">
+    <h1 id="signin-title">Welcome back</h1>
+    <p>Sign in to continue to PanelShelf.</p>
+  </div>
 
-        <div class="form-group">
-          <label for="signin-email">Email</label>
-          <input
-            type="email"
-            id="signin-email"
-            name="email"
-            autocomplete="email"
-            placeholder="you@example.com"
-            required
-          >
-        </div>
+  <form id="signin-form">
 
-        <div class="form-group">
-          <label for="signin-password">Password</label>
+    <div class="form-group">
+      <label for="signin-email">Email</label>
 
-          <div class="password-input">
-            <input
-              type="password"
-              id="signin-password"
-              name="password"
-              autocomplete="current-password"
-              placeholder="Enter your password"
-              required
-            >
+      <input
+        type="email"
+        id="signin-email"
+        name="email"
+        autocomplete="email"
+        placeholder="you@example.com"
+        required
+      >
+    </div>
 
-            <button
-              type="button"
-              id="toggle-signin-password"
-              class="password-toggle"
-              aria-label="Show password"
-            >
-              Show
-            </button>
-          </div>
-        </div>
+    <div class="form-group">
+      <label for="signin-password">Password</label>
 
-        <div class="signin-options">
-          <a href="#" id="forgot-password">
-            Forgot password?
-          </a>
-        </div>
+      <div class="password-input">
 
-        <button type="submit" id="signin-submit" class="signin-submit">
-          Sign In
+        <input
+          type="password"
+          id="signin-password"
+          name="password"
+          autocomplete="current-password"
+          placeholder="Enter your password"
+          required
+        >
+
+        <button
+          type="button"
+          id="toggle-signin-password"
+          class="password-toggle"
+          aria-label="Show password"
+        >
+          Show
         </button>
 
-        <p id="signin-message" class="signin-message" role="status"></p>
-
-      </form>
-
-      <div class="signin-divider">
-        <span>Don't have an account?</span>
       </div>
+    </div>
 
-      <a href="signup.html" id="create-account" class="create-account">
-  Create an account
-</a>
-
-      <a href="index.html" class="back-to-home">
-        ← Back to PanelShelf
+    <div class="signin-options">
+      <a href="#" id="forgot-password">
+        Forgot password?
       </a>
+    </div>
 
-    </section>
+    <button
+      type="submit"
+      id="signin-submit"
+      class="signin-submit"
+    >
+      Sign In
+    </button>
+
+    <p
+      id="signin-message"
+      class="signin-message"
+      role="status"
+    ></p>
+
+  </form>
+
+  <div class="signin-divider">
+    <span>Don't have an account?</span>
+  </div>
+
+  <a
+    href="signup.html"
+    id="create-account"
+    class="create-account"
+  >
+    Create an account
+  </a>
+
+  <a
+    href="index.html"
+    class="back-to-home"
+  >
+    ← Back to PanelShelf
+  </a>
+
+</section>
+
 
   </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
   <script src="signin.js"></script>
 

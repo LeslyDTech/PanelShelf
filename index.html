@@ -130,12 +130,11 @@ aria-expanded="false"
   ACCOUNT
 </div>
 
-<nav class="sidebar-nav">
-
+<nav class="sidebar-nav" aria-label="Account navigation">
   <button
     class="sidebar-nav-button"
     type="button"
-    data-scroll-target="account-panel"
+    data-view="account-view"
   >
     <span class="nav-icon">●</span>
     <span>Account</span>
@@ -144,12 +143,11 @@ aria-expanded="false"
   <button
     class="sidebar-nav-button"
     type="button"
-    data-scroll-target="settings-panel"
+    data-view="settings-view"
   >
     <span class="nav-icon">⚙</span>
     <span>Settings</span>
   </button>
-
 </nav>
 
 <div class="sidebar-spacer"></div>
@@ -866,6 +864,427 @@ aria-expanded="false"
     ></div>
 
   </section>
+
+  <section
+  id="account-view"
+  class="view account-view"
+  hidden
+  aria-labelledby="account-heading"
+>
+  <div class="page-heading-row">
+    <div>
+      <span class="eyebrow">YOUR ACCOUNT</span>
+      <h1 id="account-heading">Account</h1>
+      <p class="page-heading-copy">
+        Manage your PanelShelf account and collection information.
+      </p>
+    </div>
+  </div>
+
+  <div class="account-layout">
+
+    <section class="account-hero panel-card">
+      <div class="account-hero-avatar" aria-hidden="true">
+        PS
+      </div>
+
+      <div class="account-hero-info">
+        <span class="panel-label">PANEL SHELF MEMBER</span>
+
+        <h2 id="account-user-name">Guest</h2>
+
+        <p id="account-user-email">
+          Not signed in
+        </p>
+
+        <div class="account-status">
+          <span class="account-status-dot"></span>
+          <span id="account-status-text">Signed out</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="account-card">
+      <div class="account-card-header">
+        <div>
+          <span class="panel-label">YOUR COLLECTION</span>
+          <h2>Collection Statistics</h2>
+        </div>
+      </div>
+
+      <div class="account-stat-grid">
+
+        <div class="account-stat">
+          <span class="account-stat-number" id="account-total-count">0</span>
+          <span class="account-stat-label">Total</span>
+        </div>
+
+        <div class="account-stat">
+          <span class="account-stat-number" id="account-owned-count">0</span>
+          <span class="account-stat-label">Owned</span>
+        </div>
+
+        <div class="account-stat">
+          <span class="account-stat-number" id="account-reading-count">0</span>
+          <span class="account-stat-label">Reading</span>
+        </div>
+
+        <div class="account-stat">
+          <span class="account-stat-number" id="account-wishlist-count">0</span>
+          <span class="account-stat-label">Wishlist</span>
+        </div>
+
+      </div>
+    </section>
+
+    <section class="account-card">
+      <div class="account-card-header">
+        <div>
+          <span class="panel-label">SECURITY</span>
+          <h2>Account Security</h2>
+        </div>
+      </div>
+
+      <div class="account-setting-row">
+        <div class="account-setting-copy">
+          <strong>Password</strong>
+          <span>
+            Update the password used to sign in to PanelShelf.
+          </span>
+        </div>
+
+        <button
+          id="account-change-password-button"
+          class="secondary-action"
+          type="button"
+        >
+          Change Password
+        </button>
+      </div>
+
+      <div class="account-setting-row">
+        <div class="account-setting-copy">
+          <strong>Current Session</strong>
+          <span id="account-session-description">
+            You are currently signed out.
+          </span>
+        </div>
+
+        <button
+          id="account-sign-out-button"
+          class="secondary-action"
+          type="button"
+          hidden
+        >
+          Sign Out
+        </button>
+      </div>
+    </section>
+
+    <section class="account-card">
+      <div class="account-card-header">
+        <div>
+          <span class="panel-label">PRIVACY & SUPPORT</span>
+          <h2>Help & Privacy</h2>
+        </div>
+      </div>
+
+      <div class="account-setting-row">
+        <div class="account-setting-copy">
+          <strong>Privacy Policy</strong>
+          <span>
+            Review how PanelShelf handles your information.
+          </span>
+        </div>
+
+        <a
+          class="secondary-action account-link-button"
+          href="privacy.html"
+        >
+          View Privacy
+        </a>
+      </div>
+
+      <div class="account-setting-row">
+        <div class="account-setting-copy">
+          <strong>Support</strong>
+          <span>
+            Contact PanelShelf if you need help.
+          </span>
+        </div>
+
+        <a
+          class="secondary-action account-link-button"
+          href="mailto:leslydtech@gmail.com"
+        >
+          Contact Support
+        </a>
+      </div>
+    </section>
+
+    <section class="account-card danger-zone">
+      <div class="account-card-header">
+        <div>
+          <span class="panel-label">DANGER ZONE</span>
+          <h2>Delete Account</h2>
+        </div>
+      </div>
+
+      <div class="account-setting-row">
+        <div class="account-setting-copy">
+          <strong>Permanently delete your account</strong>
+          <span>
+            This permanently removes your PanelShelf account and
+            associated collection data.
+          </span>
+        </div>
+
+        <button
+          id="account-delete-button"
+          class="delete-account-action"
+          type="button"
+          hidden
+        >
+          Delete Account
+        </button>
+      </div>
+    </section>
+
+  </div>
+</section>
+
+<section
+  id="settings-view"
+  class="view settings-view"
+  hidden
+  aria-labelledby="settings-heading"
+>
+  <div class="page-heading-row">
+    <div>
+      <span class="eyebrow">PREFERENCES</span>
+      <h1 id="settings-heading">Settings</h1>
+      <p class="page-heading-copy">
+        Customize how PanelShelf works for you.
+      </p>
+    </div>
+  </div>
+
+  <div class="settings-layout">
+
+    <section class="settings-card">
+      <div class="settings-card-header">
+        <div>
+          <span class="panel-label">APPEARANCE</span>
+          <h2>Appearance</h2>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-copy">
+          <strong>Theme</strong>
+          <span>
+            Choose how PanelShelf should appear on your screen.
+          </span>
+        </div>
+
+        <select
+          id="theme-setting"
+          class="settings-select"
+          aria-label="Theme"
+        >
+          <option value="panel">PanelShelf</option>
+          <option value="system">System</option>
+        </select>
+      </div>
+    </section>
+
+    <section class="settings-card">
+      <div class="settings-card-header">
+        <div>
+          <span class="panel-label">COLLECTION</span>
+          <h2>Collection Preferences</h2>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-copy">
+          <strong>Default Collection View</strong>
+          <span>
+            Choose how your collection is displayed.
+          </span>
+        </div>
+
+        <select
+          id="collection-view-setting"
+          class="settings-select"
+          aria-label="Default collection view"
+        >
+          <option value="grid">Grid</option>
+          <option value="list">List</option>
+        </select>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-copy">
+          <strong>Remember Collection Filters</strong>
+          <span>
+            Keep your collection search and filters between visits.
+          </span>
+        </div>
+
+        <label class="settings-toggle">
+          <input
+            id="remember-filters-setting"
+            type="checkbox"
+          >
+          <span class="settings-toggle-track">
+            <span class="settings-toggle-thumb"></span>
+          </span>
+        </label>
+      </div>
+    </section>
+
+    <section class="settings-card">
+      <div class="settings-card-header">
+        <div>
+          <span class="panel-label">ACCOUNT</span>
+          <h2>Account & Security</h2>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-copy">
+          <strong>Password</strong>
+          <span>
+            Change the password associated with your account.
+          </span>
+        </div>
+
+        <button
+          id="settings-change-password-button"
+          class="secondary-action"
+          type="button"
+        >
+          Change Password
+        </button>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-copy">
+          <strong>Sign Out</strong>
+          <span>
+            Sign out of your current PanelShelf session.
+          </span>
+        </div>
+
+        <button
+          id="settings-sign-out-button"
+          class="secondary-action"
+          type="button"
+          hidden
+        >
+          Sign Out
+        </button>
+      </div>
+    </section>
+
+    <section class="settings-card">
+      <div class="settings-card-header">
+        <div>
+          <span class="panel-label">DATA</span>
+          <h2>Privacy & Data</h2>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-copy">
+          <strong>Export Collection</strong>
+          <span>
+            Download your collection information as a CSV file.
+          </span>
+        </div>
+
+        <button
+          id="settings-export-button"
+          class="secondary-action"
+          type="button"
+        >
+          Export CSV
+        </button>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-copy">
+          <strong>Privacy Policy</strong>
+          <span>
+            Review the PanelShelf privacy policy.
+          </span>
+        </div>
+
+        <a
+          class="secondary-action account-link-button"
+          href="privacy.html"
+        >
+          View Privacy
+        </a>
+      </div>
+    </section>
+
+    <section class="settings-card">
+      <div class="settings-card-header">
+        <div>
+          <span class="panel-label">SUPPORT</span>
+          <h2>Need Help?</h2>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-copy">
+          <strong>PanelShelf Support</strong>
+          <span>
+            Have a question or found a problem? Get in touch.
+          </span>
+        </div>
+
+        <a
+          class="secondary-action account-link-button"
+          href="mailto:leslydtech@gmail.com"
+        >
+          Contact Support
+        </a>
+      </div>
+    </section>
+
+    <section class="settings-card danger-zone">
+      <div class="settings-card-header">
+        <div>
+          <span class="panel-label">DANGER ZONE</span>
+          <h2>Delete Account</h2>
+        </div>
+      </div>
+
+      <div class="settings-row">
+        <div class="settings-copy">
+          <strong>Permanently delete your account</strong>
+          <span>
+            Delete your PanelShelf account and associated collection
+            data permanently.
+          </span>
+        </div>
+
+        <button
+          id="settings-delete-button"
+          class="delete-account-action"
+          type="button"
+          hidden
+        >
+          Delete Account
+        </button>
+      </div>
+    </section>
+
+  </div>
+</section>
 
 </main>
 
