@@ -52,10 +52,10 @@ function redirectUrl() {
   return new URL("index.html", window.location.href).toString();
 }
 
-function setLoading(button, loading, defaultText) {
+function setLoading(button, loading, defaultText, loadingText = "Searching") {
   button.disabled = loading;
   button.classList.toggle("is-loading", loading);
-  button.textContent = loading ? "Searching" : defaultText;
+  button.textContent = loading ? loadingText : defaultText;
 }
 
 function setCoverPreview(container, coverUrl, title) {
@@ -70,6 +70,27 @@ function setCoverPreview(container, coverUrl, title) {
   image.alt = `${title || "Selected"} cover preview`;
 
   container.append(image);
+}
+
+function showToast(message, type = "info") {
+  let stack = $("#toast-stack");
+
+  if (!stack) {
+    stack = document.createElement("div");
+    stack.id = "toast-stack";
+    stack.setAttribute("aria-live", "polite");
+    document.body.append(stack);
+  }
+
+  const toast = document.createElement("div");
+  toast.className = `toast toast-${type}`;
+  toast.textContent = message;
+  stack.append(toast);
+
+  setTimeout(() => {
+    toast.classList.add("is-leaving");
+    setTimeout(() => toast.remove(), 250);
+  }, 3500);
 }
 
 /* =========================================
@@ -477,8 +498,14 @@ function getVisibleComics() {
   }
 
   if (sort === "title") {
-    visible.sort((a, b) =>
-      itemName(a).localeCompare(itemName(b))
+    visible.sort(
+      (a, b) =>
+        a.series.localeCompare(b.series, undefined, {
+          sensitivity: "base",
+        }) ||
+        (a.issue || "").localeCompare(b.issue || "", undefined, {
+          numeric: true,
+        })
     );
   }
 
@@ -873,7 +900,7 @@ function saveSettings() {
 
 function openPasswordResetDialog() {
   if (!user) {
-    alert(
+    showToast(
       "Please sign in before changing your password."
     );
 
@@ -901,7 +928,7 @@ function openDeleteAccountDialog() {
   }
 
   if (!user) {
-    alert(
+    showToast(
       "Please sign in before deleting your account."
     );
   }
@@ -975,7 +1002,7 @@ if (settingsExportButton) {
     "click",
     () => {
       if (!user) {
-        alert(
+        showToast(
           "Please sign in before exporting your collection."
         );
 
@@ -1032,9 +1059,13 @@ function showView(viewId) {
     $$(".sidebar-nav-button");
 
   navButtons.forEach((button) => {
+    const isStatusShortcut =
+      button.dataset.statusFilter !== undefined;
+
     button.classList.toggle(
       "active",
-      button.dataset.view === viewId
+      !isStatusShortcut &&
+        button.dataset.view === viewId
     );
   });
 
@@ -1113,9 +1144,13 @@ $$("[data-status-filter]").forEach(
             status;
         }
 
-        showView(
+                showView(
           "collection-view"
         );
+
+        $$(".sidebar-nav-button").forEach((item) => {
+          item.classList.toggle("active", item === button);
+        });
 
         renderComics();
       }
@@ -1183,6 +1218,7 @@ async function searchCovers() {
   const seriesInput =
     $("#series");
 
+  
   const issueInput =
     $("#issue");
 
@@ -1231,25 +1267,38 @@ async function searchCovers() {
   suggestions.replaceChildren();
 
   try {
-   const { data, error } = await supabaseClient.functions.invoke(
-  coverFunctionName,
-  {
-    body: {
-      title: series,
-      series,
-      issue,
-    },
-  }
-);
+
+    const { data, error } =
+      await supabaseClient.functions.invoke(
+        coverFunctionName,
+        {
+          body: {
+            title: series,
+            series,
+            issue,
+          },
+        }
+      );
+
 
     if (error) {
       throw error;
     }
 
-    const results =
-      Array.isArray(data)
-        ? data
-        : data?.results || [];
+        const rawResults = Array.isArray(data)
+      ? data
+      : data?.results || data?.covers || [];
+
+    const results = rawResults
+      .map((item) =>
+        typeof item === "string"
+          ? {
+              cover_url: item,
+              title: issue ? `${series} ${issue}` : series,
+            }
+          : item
+      )
+      .filter((item) => item?.cover_url || item?.url);
 
     if (!results.length) {
       message.textContent =
@@ -1360,21 +1409,32 @@ async function searchCovers() {
       }
     );
   } catch (error) {
-  console.error("PanelShelf: cover search failed:", error);
+    console.error(
+      "PanelShelf: cover search failed:",
+      error
+    );
 
-  if (error?.context) {
-    try {
-      const responseBody = await error.context.json();
-      console.error("PanelShelf: Edge Function response:", responseBody);
+    if (error?.context) {
+      try {
+        const responseBody =
+          await error.context.json();
+
+        console.error(
+          "PanelShelf: Edge Function response:",
+          responseBody
+        );
+
+        message.textContent =
+          responseBody?.error ||
+          "Could not search for covers.";
+      } catch {
+        message.textContent =
+          "Could not search for covers.";
+      }
+    } else {
       message.textContent =
-        responseBody?.error || "Could not search for covers.";
-    } catch {
-      message.textContent = "Could not search for covers.";
+        "Could not search for covers.";
     }
-  } else {
-    message.textContent = "Could not search for covers.";
-  }
-  
   } finally {
     setLoading(
       button,
@@ -1513,8 +1573,9 @@ if (form) {
       event.preventDefault();
 
       if (!user) {
-        alert(
-          "Please sign in before adding a comic."
+        showToast(
+          "Please sign in before adding a comic.",
+          "error"
         );
 
         return;
@@ -1525,8 +1586,17 @@ if (form) {
           'button[type="submit"]'
         );
 
+      const submitDefault =
+        submitButton?.textContent ||
+        "Add Comic";
+
       if (submitButton) {
-        submitButton.disabled = true;
+        setLoading(
+          submitButton,
+          true,
+          submitDefault,
+          "Saving"
+        );
       }
 
       const itemType =
@@ -1562,6 +1632,30 @@ if (form) {
           ?.value.trim() || "";
 
       try {
+        const duplicate =
+          comics.some(
+            (comic) =>
+              comic.item_type ===
+                itemType &&
+              comic.series
+                .trim()
+                .toLowerCase() ===
+                series.toLowerCase() &&
+              (comic.issue || "")
+                .trim()
+                .toLowerCase() ===
+                issue.toLowerCase()
+          );
+
+        if (duplicate) {
+          showToast(
+            "That comic is already in your collection.",
+            "error"
+          );
+
+          return;
+        }
+
         const { error } =
           await supabaseClient
             .from("comics")
@@ -1615,19 +1709,28 @@ if (form) {
         );
 
         await loadComics();
+
+        showToast(
+          "Comic added to your collection.",
+          "success"
+        );
       } catch (error) {
         console.error(
           "PanelShelf: failed to add comic:",
           error
         );
 
-        alert(
-          "PanelShelf could not add that comic. Please try again."
+        showToast(
+          "PanelShelf could not add that comic. Please try again.",
+          "error"
         );
       } finally {
         if (submitButton) {
-          submitButton.disabled =
-            false;
+          setLoading(
+            submitButton,
+            false,
+            submitDefault
+          );
         }
       }
     }
@@ -1705,8 +1808,9 @@ async function removeComic(comic) {
       error
     );
 
-    alert(
-      "PanelShelf could not remove that comic."
+    showToast(
+      "PanelShelf could not remove that comic.",
+      "error"
     );
   }
 }
@@ -1832,9 +1936,17 @@ if (editForm) {
           'button[type="submit"]'
         );
 
+      const submitDefault =
+        submitButton?.textContent ||
+        "Save Changes";
+
       if (submitButton) {
-        submitButton.disabled =
-          true;
+        setLoading(
+          submitButton,
+          true,
+          submitDefault,
+          "Saving"
+        );
       }
 
       const id =
@@ -1923,19 +2035,28 @@ if (editForm) {
         }
 
         await loadComics();
+
+        showToast(
+          "Changes saved.",
+          "success"
+        );
       } catch (error) {
         console.error(
           "PanelShelf: failed to edit comic:",
           error
         );
 
-        alert(
-          "PanelShelf could not update that comic."
+        showToast(
+          "PanelShelf could not update that comic.",
+          "error"
         );
       } finally {
         if (submitButton) {
-          submitButton.disabled =
-            false;
+          setLoading(
+            submitButton,
+            false,
+            submitDefault
+          );
         }
       }
     }
@@ -2000,7 +2121,7 @@ function escapeCsv(value) {
 
 function exportCsv() {
   if (!user) {
-    alert(
+    showToast(
       "Please sign in before exporting your collection."
     );
 
@@ -2008,7 +2129,7 @@ function exportCsv() {
   }
 
   if (!comics.length) {
-    alert(
+    showToast(
       "Your collection is empty."
     );
 
@@ -2612,8 +2733,9 @@ async function signOut() {
       error
     );
 
-    alert(
-      "PanelShelf could not sign you out."
+    showToast(
+      "PanelShelf could not sign you out.",
+      "error"
     );
   }
 }
